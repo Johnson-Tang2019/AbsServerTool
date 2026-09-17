@@ -14,14 +14,17 @@ public final class AbsServerCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         var page = com.mojang.brigadier.builder.RequiredArgumentBuilder.<CommandSourceStack, Integer>argument("page", IntegerArgumentType.integer(1));
         page.executes(context -> showPlaytime(context.getSource(), IntegerArgumentType.getInteger(context, "page")));
+        var total = Commands.literal("total")
+                .executes(context -> empty(context.getSource(), "方块总放置量统计将在放置追踪启用后显示。"))
+                .then(Commands.argument("page", IntegerArgumentType.integer(1))
+                        .executes(context -> empty(context.getSource(), "方块总放置量统计将在放置追踪启用后显示。")));
+        var weekly = Commands.literal("weekly")
+                .executes(context -> empty(context.getSource(), "本周方块放置量统计将在放置追踪启用后显示。"));
         dispatcher.register(Commands.literal("absserver")
                 .then(Commands.literal("playtime").executes(context -> showPlaytime(context.getSource(), 1)).then(page))
                 .then(Commands.literal("deaths").executes(context -> showDeaths(context.getSource(), 1))
                         .then(Commands.argument("page", IntegerArgumentType.integer(1)).executes(context -> showDeaths(context.getSource(), IntegerArgumentType.getInteger(context, "page")))))
-                .then(Commands.literal("blocks").then(Commands.literal("placed")
-                        .then(Commands.literal("total").executes(context -> empty(context.getSource(), "方块总放置量统计将在放置追踪启用后显示。"))
-                                .then(Commands.argument("page", IntegerArgumentType.integer(1)).executes(context -> empty(context.getSource(), "方块总放置量统计将在放置追踪启用后显示。"))))
-                        .then(Commands.literal("weekly").executes(context -> empty(context.getSource(), "本周方块放置量统计将在放置追踪启用后显示。")))));
+                .then(Commands.literal("blocks").then(Commands.literal("placed").then(total).then(weekly))));
     }
 
     private static int showPlaytime(CommandSourceStack source, int page) {

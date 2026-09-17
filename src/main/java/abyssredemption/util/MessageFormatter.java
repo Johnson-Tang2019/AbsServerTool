@@ -18,7 +18,8 @@ public final class MessageFormatter {
             LeaderboardEntry entry = page.entries().get(i);
             long value = entry.value();
             String rendered = time ? TimeFormatter.formatTicks(value) : String.format("%,d", value);
-            source.sendSuccess(() -> Component.literal("#" + (start + i + 1) + " " + entry.playerName() + "  " + rendered)
+            int rank = start + i + 1;
+            source.sendSuccess(() -> Component.literal("#" + rank + " " + entry.playerName() + "  " + rendered)
                     .withStyle(ChatFormatting.WHITE), false);
         }
         source.sendSuccess(() -> Component.literal("------------------------------").withStyle(ChatFormatting.DARK_GRAY), false);
