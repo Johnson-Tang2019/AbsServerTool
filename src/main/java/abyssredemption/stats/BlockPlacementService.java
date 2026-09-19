@@ -1,24 +1,19 @@
 package abyssredemption.stats;
 
 import abyssredemption.config.ConfigManager;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class BlockPlacementService {
-    private final Map<UUID, Long> totals = new ConcurrentHashMap<>();
-    private final Map<String, Map<UUID, Long>> weekly = new ConcurrentHashMap<>();
-
     public void recordPlacement(ServerPlayer player) {
         var config = ConfigManager.get().placements();
         if (!config.enabled() || (!config.countCreativePlacements() && player.gameMode().isCreative())) return;
+        if (!config.includeFakePlayers() && player.connection == null) return;
         UUID uuid = player.getUUID();
-        totals.merge(uuid, 1L, Long::sum);
-        String week = PlacementWeekKey.current(config.timezone());
-        weekly.computeIfAbsent(week, ignored -> new ConcurrentHashMap<>()).merge(uuid, 1L, Long::sum);
+        player.awardStat(ModStats.BLOCKS_PLACED);
+        WeeklyPlacementStore.increment(player.level().getServer(), uuid);
     }
 
-    public long total(UUID uuid) { return totals.getOrDefault(uuid, 0L); }
-    public long weekly(String week, UUID uuid) { return weekly.getOrDefault(week, Map.of()).getOrDefault(uuid, 0L); }
+    public long weekly(MinecraftServer server, UUID uuid) { return WeeklyPlacementStore.getCurrentWeekCount(server, uuid); }
 }

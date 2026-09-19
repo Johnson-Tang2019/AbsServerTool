@@ -33,6 +33,7 @@ public final class PlayerStatsService {
             }
         }
         for (var player : server.getPlayerList().getPlayers()) result.put(player.getUUID(), online.read(player));
+        for (UUID uuid : WeeklyPlacementStore.trackedPlayers(server)) result.putIfAbsent(uuid, new PlayerStatSnapshot(uuid, 0, 0, 0));
         return Map.copyOf(result);
     }
 
