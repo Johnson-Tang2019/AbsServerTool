@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.4
+
+- Exclude online Carpet `EntityPlayerMPFake` instances from all statistics.
+- Detection uses the Carpet fake-player entity type, not player-name prefixes.
+
 ## 0.2.3
 
 - Leaderboards include all players with loaded vanilla statistics, including players currently offline.

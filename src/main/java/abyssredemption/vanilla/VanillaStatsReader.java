@@ -1,6 +1,7 @@
 package abyssredemption.vanilla;
 
 import abyssredemption.AbsServerTool;
+import abyssredemption.player.CarpetFakePlayerDetector;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,13 @@ public final class VanillaStatsReader {
                 catch (Exception e) { AbsServerTool.LOGGER.warn("Skipping malformed stats file {}", path); }
             });
         } catch (Exception e) { AbsServerTool.LOGGER.warn("Cannot scan statistics directory {}", stats, e); }
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) result.put(player.getUUID(), readOnline(player));
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (CarpetFakePlayerDetector.isFake(player)) {
+                result.remove(player.getUUID());
+                continue;
+            }
+            result.put(player.getUUID(), readOnline(player));
+        }
         return Map.copyOf(result);
     }
     private VanillaStatSnapshot readOnline(ServerPlayer player) {
