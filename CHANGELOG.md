@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3
+
+- Leaderboards include all players with loaded vanilla statistics, including players currently offline.
+- Offline names are resolved from the server user cache when available.
+
 ## 0.2.2
 
 - Leaderboards now include only currently online players; offline players remain available for historical snapshot calculations.
