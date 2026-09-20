@@ -3,15 +3,31 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v-prefixed tag to publish
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+      CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-java@v4
         with:
           java-version: "25"
@@ -19,9 +35,62 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.5.1"
-      - run: gradle build --no-daemon
-      - uses: softprops/action-gh-release@v2
+
+      - name: Validate release configuration
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          mod_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          minecraft_version="$(sed -n 's/^minecraft_version=//p' gradle.properties)"
+          expected_tag="v${mod_version}"
+
+          if [[ "${RELEASE_TAG}" != "${expected_tag}" ]]; then
+            echo "Release tag ${RELEASE_TAG} does not match mod_version=${mod_version}." >&2
+            exit 1
+          fi
+          if [[ -z "${MODRINTH_PROJECT_ID}" || -z "${CURSEFORGE_PROJECT_ID}" ]]; then
+            echo "MODRINTH_PROJECT_ID and CURSEFORGE_PROJECT_ID repository variables are required." >&2
+            exit 1
+          fi
+
+          echo "mod_version=${mod_version}" >> "$GITHUB_OUTPUT"
+          echo "minecraft_version=${minecraft_version}" >> "$GITHUB_OUTPUT"
+          echo "artifact=build/libs/absservertool-${mod_version}.jar" >> "$GITHUB_OUTPUT"
+          echo "platform_version=${mod_version}+${minecraft_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Build release JAR
+        run: gradle clean build --no-daemon
+
+      - name: Verify release JAR
+        shell: bash
+        run: test -f "${{ steps.release.outputs.artifact }}"
+
+      - name: Publish to Modrinth and CurseForge
+        uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
         with:
-          files: build/libs/*.jar
+          modrinth-id: ${{ env.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ env.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: ${{ steps.release.outputs.artifact }}
+          name: Ab's Server Tool ${{ steps.release.outputs.mod_version }}
+          version: ${{ steps.release.outputs.platform_version }}
+          version-type: release
+          changelog-file: CHANGELOG.md
+          loaders: fabric
+          game-versions: ${{ steps.release.outputs.minecraft_version }}
+          game-version-filter: none
+          java: Java 25
+          retry-attempts: 2
+          fail-mode: fail
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Ab's Server Tool ${{ steps.release.outputs.mod_version }} - Minecraft ${{ steps.release.outputs.minecraft_version }}
+          files: ${{ steps.release.outputs.artifact }}
           generate_release_notes: true
           draft: false
+          fail_on_unmatched_files: true
