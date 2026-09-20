@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- Add Fabric and NeoForge 26.2 server artifacts using a shared statistics core.
+- Add NeoForge command, lifecycle, snapshot, and protocol-v2 integration.
+
 ## 0.2.4
 
 - Exclude online Carpet `EntityPlayerMPFake` instances from all statistics.

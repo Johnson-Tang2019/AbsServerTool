@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId="absservertool"
+version="${version}"
+displayName="AbsServerTool"
+description='''Server-side vanilla statistics and snapshot tools.'''
+
+[[dependencies.absservertool]]
+modId="neoforge"
+type="required"
+versionRange="[26.2.0.77,)"
+ordering="NONE"
+side="SERVER"
+
+[[dependencies.absservertool]]
+modId="minecraft"
+type="required"
+versionRange="[26.2,26.3)"
+ordering="NONE"
+side="SERVER"

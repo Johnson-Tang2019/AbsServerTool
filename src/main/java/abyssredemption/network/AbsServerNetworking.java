@@ -44,7 +44,7 @@ public final class AbsServerNetworking {
         }
         var config = ConfigManager.get();
         var today = SnapshotStore.getOrCreateTodayBaseline(context.server());
-        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.2.0", ProtocolConstants.ALL_CAPABILITIES,
+        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.2.4", ProtocolConstants.ALL_CAPABILITIES,
                 config.leaderboard().pageSize(), today.dateKey(), config.snapshot().timezone(), today.partial()));
     }
 

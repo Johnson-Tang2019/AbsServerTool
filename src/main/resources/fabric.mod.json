@@ -5,7 +5,7 @@
   "name": "AbsServerTool",
   "description": "Server-side statistics and leaderboard tools.",
   "environment": "server",
-  "entrypoints": { "main": ["abyssredemption.AbsServerTool"] },
+  "entrypoints": { "main": ["abyssredemption.fabric.AbsServerToolFabric"] },
   "depends": {
     "fabricloader": ">=0.18.0",
     "minecraft": "26.2.x",
