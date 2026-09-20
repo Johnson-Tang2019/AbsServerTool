@@ -36,9 +36,13 @@ public final class ConfigManager {
         leaderboard = new AbsServerConfig.Leaderboard(Math.max(1, Math.min(100, leaderboard.pageSize())), Math.max(1, leaderboard.cacheTtlSeconds()), leaderboard.includeZeroValues());
         var network = value.network() == null ? defaults.network() : value.network();
         network = new AbsServerConfig.Network(network.enabled(), Math.max(0, network.minimumRequestIntervalMillis()));
+        var statistics = value.statistics() == null ? defaults.statistics() : value.statistics();
+        statistics = new AbsServerConfig.Statistics(statistics.includeModdedBlockItems(), Math.max(1, statistics.currentStatsCacheSeconds()));
+        var snapshot = value.snapshot() == null ? defaults.snapshot() : value.snapshot();
+        snapshot = new AbsServerConfig.Snapshot(snapshot.timezone(), Math.max(0, snapshot.retentionDays()));
         return new AbsServerConfig(leaderboard,
                 value.display() == null ? defaults.display() : value.display(),
                 value.placements() == null ? defaults.placements() : value.placements(),
-                network);
+                network, statistics, snapshot);
     }
 }

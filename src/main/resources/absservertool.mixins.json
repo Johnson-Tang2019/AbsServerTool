@@ -1,7 +1,0 @@
-{
-  "required": true,
-  "package": "abyssredemption.mixin",
-  "compatibilityLevel": "JAVA_25",
-  "mixins": ["BlockItemPlacementMixin"],
-  "injectors": { "defaultRequire": 1 }
-}

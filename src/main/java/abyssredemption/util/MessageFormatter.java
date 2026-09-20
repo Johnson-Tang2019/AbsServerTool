@@ -4,6 +4,7 @@ import abyssredemption.stats.LeaderboardEntry;
 import abyssredemption.stats.LeaderboardPage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import abyssredemption.config.ConfigManager;
 
 public final class MessageFormatter {
     private MessageFormatter() {}
@@ -13,7 +14,7 @@ public final class MessageFormatter {
             source.sendSuccess(() -> Component.literal(title + "暂无数据。").withStyle(ChatFormatting.GRAY), false);
             return;
         }
-        int start = (page.page() - 1) * page.entries().size();
+        int start = (page.page() - 1) * Math.max(1, ConfigManager.get().leaderboard().pageSize());
         for (int i = 0; i < page.entries().size(); i++) {
             LeaderboardEntry entry = page.entries().get(i);
             long value = entry.value();

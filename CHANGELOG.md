@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0] - 2026-09-20
+
+### Changed
+
+- Migrated placement statistics to vanilla `minecraft:used` BlockItem statistics.
+- Removed the custom placement statistic and placement Mixin.
+- Added persistent daily vanilla-stat snapshots, DAU/WAU, daily/weekly metrics, and V2 networking.
+- Added Overview, Trend, and nine time-range leaderboard types.
+
 ## [0.1.1] - 2026-09-19
 
 ### Added
