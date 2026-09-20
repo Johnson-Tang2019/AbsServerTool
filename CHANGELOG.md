@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+- Leaderboards now include only currently online players; offline players remain available for historical snapshot calculations.
+
 ## [0.2.0] - 2026-09-20
 
 ### Changed

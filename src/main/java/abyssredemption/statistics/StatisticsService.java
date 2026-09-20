@@ -28,12 +28,13 @@ public final class StatisticsService {
     }
     public java.util.Map<UUID, Long> getLeaderboardValues(MinecraftServer server, StatisticsLeaderboardType type) {
         var now = current.collectAllStats(server); var values = new java.util.HashMap<UUID, Long>();
+        var online = server.getPlayerList().getPlayers().stream().map(net.minecraft.server.level.ServerPlayer::getUUID).collect(java.util.stream.Collectors.toSet());
         if (type == StatisticsLeaderboardType.TOTAL_PLAYTIME || type == StatisticsLeaderboardType.TOTAL_DEATHS || type == StatisticsLeaderboardType.TOTAL_PLACEMENTS) {
-            for (var e : now.entrySet()) values.put(e.getKey(), switch (type) { case TOTAL_PLAYTIME -> e.getValue().playTimeTicks(); case TOTAL_DEATHS -> e.getValue().deaths(); case TOTAL_PLACEMENTS -> e.getValue().vanillaBlockPlacementCount(); default -> 0L; });
+            for (var e : now.entrySet()) if (online.contains(e.getKey())) values.put(e.getKey(), switch (type) { case TOTAL_PLAYTIME -> e.getValue().playTimeTicks(); case TOTAL_DEATHS -> e.getValue().deaths(); case TOTAL_PLACEMENTS -> e.getValue().vanillaBlockPlacementCount(); default -> 0L; });
             return Map.copyOf(values);
         }
         ZoneId zone = zone(); LocalDate today = LocalDate.now(zone); LocalDate baseDate = type.name().startsWith("TODAY") ? today : today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); var base = SnapshotStore.getSnapshot(server, baseDate.toString()).orElse(null);
-        for (var e : now.entrySet()) { var b = base == null ? null : base.players().get(e.getKey().toString()); long value = switch (type) { case TODAY_PLAYTIME, WEEK_PLAYTIME -> delta(e.getValue().playTimeTicks(), b == null ? 0 : b.playTimeTicks()); case TODAY_DEATHS, WEEK_DEATHS -> delta(e.getValue().deaths(), b == null ? 0 : b.deaths()); case TODAY_PLACEMENTS, WEEK_PLACEMENTS -> delta(e.getValue().vanillaBlockPlacementCount(), b == null ? 0 : b.vanillaBlockPlacementCount()); default -> 0L; }; values.put(e.getKey(), value); }
+        for (var e : now.entrySet()) if (online.contains(e.getKey())) { var b = base == null ? null : base.players().get(e.getKey().toString()); long value = switch (type) { case TODAY_PLAYTIME, WEEK_PLAYTIME -> delta(e.getValue().playTimeTicks(), b == null ? 0 : b.playTimeTicks()); case TODAY_DEATHS, WEEK_DEATHS -> delta(e.getValue().deaths(), b == null ? 0 : b.deaths()); case TODAY_PLACEMENTS, WEEK_PLACEMENTS -> delta(e.getValue().vanillaBlockPlacementCount(), b == null ? 0 : b.vanillaBlockPlacementCount()); default -> 0L; }; values.put(e.getKey(), value); }
         return Map.copyOf(values);
     }
     public static long delta(long current, long baseline) { return current < baseline ? 0 : current - baseline; }
