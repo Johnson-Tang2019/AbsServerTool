@@ -56,29 +56,62 @@ jobs:
 
           echo "mod_version=${mod_version}" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=${minecraft_version}" >> "$GITHUB_OUTPUT"
-          echo "artifact=build/libs/absservertool-${mod_version}.jar" >> "$GITHUB_OUTPUT"
           echo "platform_version=${mod_version}+${minecraft_version}" >> "$GITHUB_OUTPUT"
+          if [[ -d "26.2Fabric" && -d "26.2NeoForge" ]]; then
+            echo "fabric_artifact=26.2Fabric/build/libs/absservertool-fabric-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
+            echo "neoforge_artifact=26.2NeoForge/build/libs/absservertool-neoforge-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
+            echo "has_neoforge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "fabric_artifact=build/libs/absservertool-${mod_version}.jar" >> "$GITHUB_OUTPUT"
+            echo "neoforge_artifact=" >> "$GITHUB_OUTPUT"
+            echo "has_neoforge=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build release JAR
         run: gradle clean build --no-daemon
 
       - name: Verify release JAR
         shell: bash
-        run: test -f "${{ steps.release.outputs.artifact }}"
+        run: |
+          set -euo pipefail
+          test -f "${{ steps.release.outputs.fabric_artifact }}"
+          if [[ "${{ steps.release.outputs.has_neoforge }}" == "true" ]]; then
+            test -f "${{ steps.release.outputs.neoforge_artifact }}"
+          fi
 
-      - name: Publish to Modrinth and CurseForge
+      - name: Publish Fabric to Modrinth and CurseForge
         uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
         with:
           modrinth-id: ${{ env.MODRINTH_PROJECT_ID }}
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
           curseforge-id: ${{ env.CURSEFORGE_PROJECT_ID }}
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: ${{ steps.release.outputs.artifact }}
-          name: Ab's Server Tool ${{ steps.release.outputs.mod_version }}
-          version: ${{ steps.release.outputs.platform_version }}
+          files: ${{ steps.release.outputs.fabric_artifact }}
+          name: Ab's Server Tool ${{ steps.release.outputs.mod_version }} (Fabric)
+          version: ${{ steps.release.outputs.platform_version }}-fabric
           version-type: release
           changelog-file: CHANGELOG.md
           loaders: fabric
+          game-versions: ${{ steps.release.outputs.minecraft_version }}
+          game-version-filter: none
+          java: Java 25
+          retry-attempts: 2
+          fail-mode: fail
+
+      - name: Publish NeoForge to Modrinth and CurseForge
+        if: steps.release.outputs.has_neoforge == 'true'
+        uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1
+        with:
+          modrinth-id: ${{ env.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          curseforge-id: ${{ env.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: ${{ steps.release.outputs.neoforge_artifact }}
+          name: Ab's Server Tool ${{ steps.release.outputs.mod_version }} (NeoForge)
+          version: ${{ steps.release.outputs.platform_version }}-neoforge
+          version-type: release
+          changelog-file: CHANGELOG.md
+          loaders: neoforge
           game-versions: ${{ steps.release.outputs.minecraft_version }}
           game-version-filter: none
           java: Java 25
@@ -90,7 +123,9 @@ jobs:
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: Ab's Server Tool ${{ steps.release.outputs.mod_version }} - Minecraft ${{ steps.release.outputs.minecraft_version }}
-          files: ${{ steps.release.outputs.artifact }}
+          files: |
+            ${{ steps.release.outputs.fabric_artifact }}
+            ${{ steps.release.outputs.neoforge_artifact }}
           generate_release_notes: true
           draft: false
           fail_on_unmatched_files: true
