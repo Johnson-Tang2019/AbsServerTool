@@ -1,6 +1,6 @@
 # AbsServerTool
 
-AbsServerTool 0.2.4 provides server-side vanilla statistics, daily snapshots,
+AbsServerTool 0.3.1 provides server-side vanilla statistics, daily snapshots,
 DAU/WAU, trends, and protocol v2 for Minecraft 26.2.
 
 The project now builds two server artifacts:
@@ -30,5 +30,35 @@ Implemented in v0.2.0:
 - The server remains usable by clients without AbsMod.
 
 Daily vanilla-stat snapshots are stored in the server world's `data` directory and are retained according to `retentionDays` on both loaders.
+
+## QQ group reports via NapCat
+
+The server mod can publish its live statistics to QQ groups without RCON, NoneBot,
+Python, or changes to `server.properties`. It uses NapCat's OneBot v11 HTTP
+`send_group_msg` API. Configure an **HTTP server** in NapCat and ensure the
+Minecraft server can reach it. The NapCat WebUI port is not the OneBot HTTP port.
+
+Only server admins can configure the bridge. Run these Minecraft commands after
+installing the Fabric or NeoForge JAR:
+
+```text
+/absserverbot url http://127.0.0.1:3000
+/absserverbot token YOUR_NAPCAT_HTTP_TOKEN
+/absserverbot group add 123456789
+/absserverbot time 20 0
+/absserverbot timezone Asia/Shanghai
+/absserverbot enable
+/absserverbot send
+/absserverbot status
+```
+
+Use the actual NapCat host and OneBot HTTP port. If NapCat has no HTTP token,
+omit the `token` command. `cleartoken`, `group remove <id>`, and `disable` are
+also available. `send` triggers a manual report; the automatic report runs once
+per day at the configured time. Configuration is saved to
+`config/absservertool_qq.json` by these commands, so no manual file editing is
+required. A failed scheduled send is logged and can be retried with `send`.
+The token is never shown by `status`, but entering it as a game command may
+leave it in client command history; use the server console if possible.
 
 See [doc/AbsServerTool_DEVELOPMENT_v2.md](doc/AbsServerTool_DEVELOPMENT_v2.md) for the complete product boundary and acceptance plan.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Add an in-mod NapCat QQ group statistics publisher for Fabric and NeoForge.
+- Add administrator commands for endpoint, token, groups, schedule, and manual sending.
+
 ## 0.3.0
 
 - Add Fabric and NeoForge 26.2 server artifacts using a shared statistics core.

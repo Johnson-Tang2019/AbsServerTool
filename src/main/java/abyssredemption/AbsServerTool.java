@@ -11,7 +11,7 @@ public final class AbsServerTool {
     public static final Logger LOGGER = LoggerFactory.getLogger("AbsServerTool");
 
     public static void initialize() {
-        LOGGER.info("Initializing AbsServerTool 0.2.4");
+        LOGGER.info("Initializing AbsServerTool");
         ConfigManager.load();
         SnapshotStore.initialize();
     }
