@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+- Exclude observed Carpet fake players from current statistics, online counts, and historical snapshot views, including after the fake player logs out.
+- Add configurable exclusions for legacy fake-player names and UUIDs.
+- Add completed advancement leaderboards for online and offline players, including players with zero completions.
+
 ## 0.3.1
 
 - Add an in-mod NapCat QQ group statistics publisher for Fabric and NeoForge.

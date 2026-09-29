@@ -2,6 +2,7 @@ package abyssredemption.vanilla;
 
 import abyssredemption.AbsServerTool;
 import abyssredemption.player.CarpetFakePlayerDetector;
+import abyssredemption.player.ExcludedPlayers;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.nio.charset.StandardCharsets;
@@ -18,11 +19,12 @@ public final class VanillaStatsReader {
     private final VanillaPlacementStatsProvider placements;
     public VanillaStatsReader(boolean includeModdedBlockItems) { placements = new VanillaPlacementStatsProvider(includeModdedBlockItems); }
     public Map<UUID, VanillaStatSnapshot> readAll(MinecraftServer server) {
+        ExcludedPlayers.get().observe(server);
         Map<UUID, VanillaStatSnapshot> result = new HashMap<>();
         Path stats = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.PLAYER_DATA_DIR).getParent().resolve("stats");
         if (Files.isDirectory(stats)) try (var files = Files.list(stats)) {
             files.filter(path -> path.getFileName().toString().endsWith(".json")).forEach(path -> {
-                try { UUID uuid = UUID.fromString(path.getFileName().toString().replace(".json", "")); result.put(uuid, readOffline(path)); }
+                try { UUID uuid = UUID.fromString(path.getFileName().toString().replace(".json", "")); if (!ExcludedPlayers.get().contains(server, uuid)) result.put(uuid, readOffline(path)); }
                 catch (Exception e) { AbsServerTool.LOGGER.warn("Skipping malformed stats file {}", path); }
             });
         } catch (Exception e) { AbsServerTool.LOGGER.warn("Cannot scan statistics directory {}", stats, e); }
@@ -31,6 +33,7 @@ public final class VanillaStatsReader {
                 result.remove(player.getUUID());
                 continue;
             }
+            if (ExcludedPlayers.get().contains(server, player.getUUID())) continue;
             result.put(player.getUUID(), readOnline(player));
         }
         return Map.copyOf(result);

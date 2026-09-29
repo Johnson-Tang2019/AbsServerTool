@@ -9,6 +9,7 @@ public final class ProtocolConstants {
     public static final int CAP_PLACEMENTS = 1 << 4;
     public static final int CAP_DAILY_TREND = 1 << 5;
     public static final int CAP_WEEKLY_TREND = 1 << 6;
-    public static final int ALL_CAPABILITIES = CAP_OVERVIEW | CAP_ACTIVITY | CAP_PLAYTIME | CAP_DEATHS | CAP_PLACEMENTS | CAP_DAILY_TREND | CAP_WEEKLY_TREND;
+    public static final int CAP_ADVANCEMENTS = 1 << 7;
+    public static final int ALL_CAPABILITIES = CAP_OVERVIEW | CAP_ACTIVITY | CAP_PLAYTIME | CAP_DEATHS | CAP_PLACEMENTS | CAP_DAILY_TREND | CAP_WEEKLY_TREND | CAP_ADVANCEMENTS;
     private ProtocolConstants() {}
 }

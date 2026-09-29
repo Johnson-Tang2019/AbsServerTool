@@ -62,6 +62,7 @@ public final class AbsServerNetworking {
             case TOTAL_PLAYTIME, TOTAL_DEATHS, TOTAL_PLACEMENTS -> "累计原版 Statistics";
             case TODAY_PLAYTIME, TODAY_DEATHS, TODAY_PLACEMENTS -> "今日快照差分";
             case WEEK_PLAYTIME, WEEK_DEATHS, WEEK_PLACEMENTS -> "本周快照差分";
+            case COMPLETED_ADVANCEMENTS -> "已完成进度数";
         };
         context.responseSender().sendPacket(new LeaderboardResponsePayload(ProtocolConstants.PROTOCOL_VERSION, payload.requestId(), type.networkId(), page.page(), page.totalPages(), page.totalEntries(), System.currentTimeMillis(), contextLabel, entries));
     }
@@ -69,7 +70,7 @@ public final class AbsServerNetworking {
     private static LeaderboardPage statisticsPage(net.minecraft.server.MinecraftServer server, StatisticsLeaderboardType type, int page) {
         var resolver = new abyssredemption.player.PlayerNameResolver();
         var all = STATISTICS.getLeaderboardValues(server, type).entrySet().stream()
-                .filter(e -> ConfigManager.get().leaderboard().includeZeroValues() || e.getValue() > 0)
+                .filter(e -> type == StatisticsLeaderboardType.COMPLETED_ADVANCEMENTS || ConfigManager.get().leaderboard().includeZeroValues() || e.getValue() > 0)
                 .map(e -> new LeaderboardEntry(e.getKey(), resolver.resolve(server, e.getKey()), e.getValue()))
                 .sorted(java.util.Comparator.comparingLong(LeaderboardEntry::value).reversed().thenComparing(LeaderboardEntry::playerName, String.CASE_INSENSITIVE_ORDER).thenComparing(e -> e.uuid().toString())).toList();
         int size = Math.max(1, Math.min(100, ConfigManager.get().leaderboard().pageSize())); int pages = Math.max(1, (all.size() + size - 1) / size); int from = Math.min((Math.max(1, page) - 1) * size, all.size()); return new LeaderboardPage(all.subList(from, Math.min(from + size, all.size())), Math.max(1, page), pages, all.size());

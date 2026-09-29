@@ -1,6 +1,6 @@
 # AbsServerTool
 
-AbsServerTool 0.3.1 provides server-side vanilla statistics, daily snapshots,
+AbsServerTool 0.3.2 provides server-side vanilla statistics, daily snapshots,
 DAU/WAU, trends, and protocol v2 for Minecraft 26.2.
 
 The project now builds two server artifacts:
@@ -19,6 +19,7 @@ Implemented in v0.2.0:
 
 - `/absserver playtime [page]` reads vanilla `minecraft:play_time`.
 - `/absserver deaths [page]` reads vanilla `minecraft:deaths`.
+- `/absserver advancements [page]` ranks known players by completed, displayable advancements, including players with zero completions.
 - Offline stats are read from the configured world's `stats` directory.
 - Online player statistics override disk data.
 - Results are cached for 30 seconds by default.
@@ -30,6 +31,8 @@ Implemented in v0.2.0:
 - The server remains usable by clients without AbsMod.
 
 Daily vanilla-stat snapshots are stored in the server world's `data` directory and are retained according to `retentionDays` on both loaders.
+
+Carpet fake players currently online are excluded from all player statistics, including the online count. Their UUIDs are recorded in `config/absservertool-excluded-players.json`, so their saved stats and historical snapshots stay excluded after logout. Fake players that have never appeared while this version is running cannot be identified reliably from a vanilla stats file alone; add their UUIDs or names to the file's `uuids` or `names` list and restart the server. Do not add real player identities. Existing snapshot files are filtered when read, not deleted. The advancements leaderboard reads the world's `advancements` files and the live progress of online players; recipe and other non-display advancements are not counted.
 
 ## QQ group reports via NapCat
 

@@ -12,4 +12,10 @@ public final class CarpetFakePlayerDetector {
         }
         return false;
     }
+
+    public static boolean isShadow(ServerPlayer player) {
+        if (!isFake(player)) return false;
+        try { return player.getClass().getField("isAShadow").getBoolean(player); }
+        catch (ReflectiveOperationException exception) { return false; }
+    }
 }

@@ -3,7 +3,8 @@ package abyssredemption.statistics;
 public enum StatisticsLeaderboardType {
     TOTAL_PLAYTIME(0), TODAY_PLAYTIME(1), WEEK_PLAYTIME(2),
     TOTAL_DEATHS(10), TODAY_DEATHS(11), WEEK_DEATHS(12),
-    TOTAL_PLACEMENTS(20), TODAY_PLACEMENTS(21), WEEK_PLACEMENTS(22);
+    TOTAL_PLACEMENTS(20), TODAY_PLACEMENTS(21), WEEK_PLACEMENTS(22),
+    COMPLETED_ADVANCEMENTS(30);
     private final int networkId;
     StatisticsLeaderboardType(int networkId) { this.networkId = networkId; }
     public int networkId() { return networkId; }
