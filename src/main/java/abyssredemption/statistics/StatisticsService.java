@@ -1,6 +1,7 @@
 package abyssredemption.statistics;
 
 import abyssredemption.config.ConfigManager;
+import abyssredemption.player.ExcludedPlayers;
 import abyssredemption.snapshot.DailySnapshot;
 import abyssredemption.snapshot.VanillaStatSnapshot;
 import abyssredemption.snapshot.SnapshotStore;
@@ -24,9 +25,12 @@ public final class StatisticsService {
         ZoneId zone = zone(); LocalDate today = LocalDate.now(zone); var todayBase = SnapshotStore.getOrCreateTodayBaseline(server); LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); var weekBase = SnapshotStore.getSnapshot(server, monday.toString()).orElse(null); Map<UUID, PlayerStatSnapshot> now = current.collectAllStats(server);
         long todayTime=0, weekTime=0, todayPlaces=0, weekPlaces=0, todayDeaths=0, weekDeaths=0; int dau=0, wau=0;
         for (var entry : now.entrySet()) { var t = entry.getValue(); var d = todayBase.players().get(entry.getKey().toString()); long dt = delta(t.playTimeTicks(), d == null ? 0 : d.playTimeTicks()); long dd = delta(t.deaths(), d == null ? 0 : d.deaths()); long dp = delta(t.vanillaBlockPlacementCount(), d == null ? 0 : d.vanillaBlockPlacementCount()); todayTime += dt; todayDeaths += dd; todayPlaces += dp; if (dt > 0) dau++; if (weekBase != null) { var w = weekBase.players().get(entry.getKey().toString()); long wt = delta(t.playTimeTicks(), w == null ? 0 : w.playTimeTicks()); weekTime += wt; weekDeaths += delta(t.deaths(), w == null ? 0 : w.deaths()); weekPlaces += delta(t.vanillaBlockPlacementCount(), w == null ? 0 : w.vanillaBlockPlacementCount()); if (wt > 0) wau++; } }
-        return new ServerOverview(server.getPlayerList().getPlayerCount(), now.size(), dau, wau, todayTime, weekTime, todayPlaces, weekPlaces, todayDeaths, weekDeaths, todayBase.partial(), weekBase == null || weekBase.partial(), today.toString(), weekKey(today));
+        int onlinePlayers = (int) server.getPlayerList().getPlayers().stream()
+                .filter(player -> !ExcludedPlayers.get().contains(server, player.getUUID())).count();
+        return new ServerOverview(onlinePlayers, now.size(), dau, wau, todayTime, weekTime, todayPlaces, weekPlaces, todayDeaths, weekDeaths, todayBase.partial(), weekBase == null || weekBase.partial(), today.toString(), weekKey(today));
     }
     public java.util.Map<UUID, Long> getLeaderboardValues(MinecraftServer server, StatisticsLeaderboardType type) {
+        if (type == StatisticsLeaderboardType.COMPLETED_ADVANCEMENTS) return new abyssredemption.vanilla.VanillaAdvancementReader().readAll(server);
         var now = current.collectAllStats(server); var values = new java.util.HashMap<UUID, Long>();
         if (type == StatisticsLeaderboardType.TOTAL_PLAYTIME || type == StatisticsLeaderboardType.TOTAL_DEATHS || type == StatisticsLeaderboardType.TOTAL_PLACEMENTS) {
             for (var e : now.entrySet()) values.put(e.getKey(), switch (type) { case TOTAL_PLAYTIME -> e.getValue().playTimeTicks(); case TOTAL_DEATHS -> e.getValue().deaths(); case TOTAL_PLACEMENTS -> e.getValue().vanillaBlockPlacementCount(); default -> 0L; });

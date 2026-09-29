@@ -43,6 +43,9 @@ public final class AbsServerCommands {
         dispatcher.register(Commands.literal("absserver")
                 .then(Commands.literal("stats").executes(context -> showOverview(context.getSource())))
                 .then(playtimeBoards).then(deathBoards).then(placementBoards)
+                .then(Commands.literal("advancements")
+                        .executes(context -> showStatisticsBoard(context.getSource(), StatisticsLeaderboardType.COMPLETED_ADVANCEMENTS, "已完成进度", 1))
+                        .then(boardPage(StatisticsLeaderboardType.COMPLETED_ADVANCEMENTS, "已完成进度")))
                 .then(Commands.literal("activity")
                         .then(Commands.literal("daily").executes(context -> showDailyActivity(context.getSource())))
                         .then(Commands.literal("weekly").executes(context -> showWeeklyActivity(context.getSource()))))
@@ -60,7 +63,7 @@ public final class AbsServerCommands {
     private static int showStatisticsBoard(CommandSourceStack source, StatisticsLeaderboardType type, String title, int page) {
         var values = STATISTICS.getLeaderboardValues(source.getServer(), type);
         var resolver = new abyssredemption.player.PlayerNameResolver();
-        var all = values.entrySet().stream().filter(e -> ConfigManager.get().leaderboard().includeZeroValues() || e.getValue() > 0)
+        var all = values.entrySet().stream().filter(e -> type == StatisticsLeaderboardType.COMPLETED_ADVANCEMENTS || ConfigManager.get().leaderboard().includeZeroValues() || e.getValue() > 0)
                 .map(e -> new LeaderboardEntry(e.getKey(), resolver.resolve(source.getServer(), e.getKey()), e.getValue()))
                 .sorted(Comparator.comparingLong(LeaderboardEntry::value).reversed().thenComparing(LeaderboardEntry::playerName, String.CASE_INSENSITIVE_ORDER).thenComparing(e -> e.uuid().toString())).toList();
         int size = Math.max(1, Math.min(100, ConfigManager.get().leaderboard().pageSize())); int totalPages = Math.max(1, (all.size() + size - 1) / size); if (page > totalPages) return outOfRange(source, totalPages); int from = (page - 1) * size; var result = new LeaderboardPage(all.subList(from, Math.min(from + size, all.size())), page, totalPages, all.size());
