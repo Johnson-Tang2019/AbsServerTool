@@ -1,6 +1,7 @@
 package abyssredemption.network;
 
 import abyssredemption.AbsServerTool;
+import abyssredemption.fabric.SharedWaypointNetworkingFabric;
 import abyssredemption.config.ConfigManager;
 import abyssredemption.network.payload.*;
 import abyssredemption.stats.LeaderboardEntry;
@@ -35,6 +36,7 @@ public final class AbsServerNetworking {
         ServerPlayNetworking.registerGlobalReceiver(LeaderboardRequestPayload.TYPE, (payload, context) -> handleRequest(payload, context));
         ServerPlayNetworking.registerGlobalReceiver(OverviewRequestPayload.TYPE, (payload, context) -> handleOverview(payload, context));
         ServerPlayNetworking.registerGlobalReceiver(TrendRequestPayload.TYPE, (payload, context) -> handleTrend(payload, context));
+        SharedWaypointNetworkingFabric.register();
     }
 
     private static void handleHello(HelloRequestPayload payload, ServerPlayNetworking.Context context) {
@@ -44,8 +46,11 @@ public final class AbsServerNetworking {
         }
         var config = ConfigManager.get();
         var today = SnapshotStore.getOrCreateTodayBaseline(context.server());
-        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.2.4", ProtocolConstants.ALL_CAPABILITIES,
+        int capabilities = ProtocolConstants.ALL_CAPABILITIES | (config.waypoints().enabled() ? ProtocolConstants.CAP_SHARED_WAYPOINTS : 0);
+        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.3.4", capabilities,
                 config.leaderboard().pageSize(), today.dateKey(), config.snapshot().timezone(), today.partial()));
+        ProtocolJoinLogger.onSuccessfulHello(context.player());
+        SharedWaypointNetworkingFabric.sendInitial(context.player());
     }
 
     private static void handleRequest(LeaderboardRequestPayload payload, ServerPlayNetworking.Context context) {

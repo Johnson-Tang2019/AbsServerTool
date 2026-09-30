@@ -40,9 +40,13 @@ public final class ConfigManager {
         statistics = new AbsServerConfig.Statistics(statistics.includeModdedBlockItems(), Math.max(1, statistics.currentStatsCacheSeconds()));
         var snapshot = value.snapshot() == null ? defaults.snapshot() : value.snapshot();
         snapshot = new AbsServerConfig.Snapshot(snapshot.timezone(), Math.max(0, snapshot.retentionDays()));
+        var waypoints = value.waypoints() == null ? defaults.waypoints() : value.waypoints();
+        waypoints = new AbsServerConfig.Waypoints(waypoints.enabled(), Math.max(2, Math.min(4, waypoints.managePermissionLevel())),
+                Math.max(1, Math.min(1024, waypoints.maxWaypoints())), Math.max(1, Math.min(64, waypoints.maxNameLength())),
+                Math.max(1, Math.min(8, waypoints.maxSymbolLength())));
         return new AbsServerConfig(leaderboard,
                 value.display() == null ? defaults.display() : value.display(),
                 value.placements() == null ? defaults.placements() : value.placements(),
-                network, statistics, snapshot);
+                network, statistics, snapshot, waypoints);
     }
 }
