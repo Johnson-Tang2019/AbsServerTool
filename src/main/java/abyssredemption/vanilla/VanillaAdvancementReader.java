@@ -21,7 +21,7 @@ public final class VanillaAdvancementReader {
         ExcludedPlayers.get().observe(server);
         Map<UUID, Long> result = new HashMap<>();
         new VanillaStatsReader(false).readAll(server).keySet().forEach(uuid -> result.put(uuid, 0L));
-        Path folder = server.getWorldPath(LevelResource.ROOT).resolve("advancements");
+        Path folder = server.getWorldPath(LevelResource.PLAYER_ADVANCEMENTS_DIR);
         if (Files.isDirectory(folder)) try (var files = Files.list(folder)) {
             files.filter(path -> path.getFileName().toString().endsWith(".json")).forEach(path -> {
                 try {
