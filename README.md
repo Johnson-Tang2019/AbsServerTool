@@ -1,6 +1,6 @@
 # AbsServerTool
 
-AbsServerTool 0.3.3 provides server-side vanilla statistics, daily snapshots,
+AbsServerTool 0.3.4 provides server-side vanilla statistics, daily snapshots,
 DAU/WAU, trends, and protocol v2 for Minecraft 26.2.
 
 The project now builds two server artifacts:
@@ -11,6 +11,27 @@ The project now builds two server artifacts:
 Both loaders share the statistics and snapshot core. Loader-specific entrypoint,
 network registration, commands, and lifecycle integration are provided by each
 platform module.
+
+## Server Shared Xaero Waypoints
+
+AbsServerTool now provides an optional shared-waypoint server capability for
+AbsTool clients. The server owns the waypoint dataset and stores it inside the
+world save at `data/absservertool_shared_waypoints.json`. Server operators meeting
+the configured permission level (default 2) can publish, update, and delete waypoints; ordinary
+players receive read-only snapshots and live updates. The default limit is 256
+waypoints. Older clients and players without AbsTool continue to use the server
+normally. Xaero is **not** required on the server. This feature transfers only
+waypoints, never Xaero map tiles or explored areas.
+
+When a player's protocol v2 Hello request is accepted, the server console
+logs the player name and UUID once for that connection. Clients that do not
+send a compatible Hello do not produce this protocol notice.
+
+Settings are in `config/absservertool.json` under `waypoints`: `enabled`,
+`managePermissionLevel` (2–4), `maxWaypoints`, `maxNameLength`, and
+`maxSymbolLength`. Existing configurations without this section use defaults.
+The client-side Xaero integration belongs to AbsTool and is not part of this
+server repository. See [the protocol and persistence design](doc/SHARED_WAYPOINTS.md).
 
 AbsServerTool is a server-side Fabric/NeoForge 26.2 mod for vanilla statistics,
 snapshots, trends, and player leaderboards.

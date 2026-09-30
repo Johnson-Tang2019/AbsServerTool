@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.4
+
+- Add server-authoritative shared waypoint storage, validation, permission checks, and Fabric/NeoForge snapshot and delta networking for future AbsTool Xaero integration.
+- Log a player's first accepted protocol v2 Hello request for each connection on both loaders.
+
 ## 0.3.3
 
 - Read offline advancement progress from Minecraft 26.2's `players/advancements` directory so all known players appear in the completion leaderboard.
