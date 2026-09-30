@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Read offline advancement progress from Minecraft 26.2's `players/advancements` directory so all known players appear in the completion leaderboard.
+
 ## 0.3.2
 
 - Exclude observed Carpet fake players from current statistics, online counts, and historical snapshot views, including after the fake player logs out.
