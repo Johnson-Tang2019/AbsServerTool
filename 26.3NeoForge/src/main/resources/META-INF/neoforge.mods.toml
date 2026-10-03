@@ -14,13 +14,13 @@ description='''Server-side vanilla statistics and snapshot tools.'''
 [[dependencies.absservertool]]
 modId="neoforge"
 type="required"
-versionRange="[26.2.0.77,)"
+versionRange="[26.3.0.23-beta,)"
 ordering="NONE"
 side="SERVER"
 
 [[dependencies.absservertool]]
 modId="minecraft"
 type="required"
-versionRange="[26.2,26.3)"
+versionRange="[26.3,26.4)"
 ordering="NONE"
 side="SERVER"

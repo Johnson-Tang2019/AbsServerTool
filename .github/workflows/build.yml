@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "codex/26.3-release"]
   pull_request:
     branches: ["main"]
 
@@ -25,5 +25,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: absservertool-${{ github.sha }}
-          path: build/libs/*.jar
+          path: |
+            26.3Fabric/build/libs/*.jar
+            26.3NeoForge/build/libs/*.jar
           if-no-files-found: error

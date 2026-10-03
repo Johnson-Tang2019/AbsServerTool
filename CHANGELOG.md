@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.3.5-SNAPSHOT (unreleased)
+## 0.3.5 - Minecraft 26.3
 
+- Port the dual-loader server mod to Minecraft 26.3 while preserving the 26.2 maintenance branch.
 - Add an opt-in, in-memory server performance profiler with administrator commands and protocol-v2 reports.
 
 ## 0.3.4

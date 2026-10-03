@@ -1,12 +1,16 @@
 # AbsServerTool
 
-AbsServerTool 0.3.5-SNAPSHOT provides server-side vanilla statistics, daily snapshots,
-DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 26.2.
+AbsServerTool 0.3.5 provides server-side vanilla statistics, daily snapshots,
+DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 26.3.
 
 The project now builds two server artifacts:
 
-- Fabric: `26.2Fabric/build/libs/absservertool-fabric-*.jar`
-- NeoForge: `26.2NeoForge/build/libs/absservertool-neoforge-*.jar`
+- Fabric: `26.3Fabric/build/libs/absservertool-fabric-*.jar`
+- NeoForge: `26.3NeoForge/build/libs/absservertool-neoforge-*.jar`
+
+Minecraft 26.2 is maintained separately on the `codex/26.2-maintenance` branch;
+its Gradle versions, loader sources, and runtime environment are not changed by
+this 26.3 branch. Use only the JAR whose Minecraft version matches the server.
 
 Both loaders share the statistics and snapshot core. Loader-specific entrypoint,
 network registration, commands, and lifecycle integration are provided by each
@@ -42,6 +46,9 @@ inspect or end a session. A report is finalized automatically at the requested
 duration; only the most recent report is kept in memory, and a restart clears
 it. Configure bounds and sampling limits under `performanceProfiler` in
 `config/absservertool.json`.
+Automatic completion relies on server ticks. If Minecraft has paused an empty
+server, sampling resumes when ticking resumes; join the server or disable the
+server's empty-pause setting before profiling from the console.
 
 Reports include tick percentiles, per-dimension time, instrumented chunk and
 entity/block-entity timings, chunk loads, player proximity associations, and
@@ -51,7 +58,7 @@ flamegraph. Protocol v2 advertises capability bit 9 and offers admin-only
 start/status/stop and paged report requests; older clients remain supported.
 An AbsMod GUI needs a separate client update to consume these packets.
 
-AbsServerTool is a server-side Fabric/NeoForge 26.2 mod for vanilla statistics,
+AbsServerTool is a server-side Fabric/NeoForge 26.3 mod for vanilla statistics,
 snapshots, trends, and player leaderboards.
 
 Implemented in v0.2.0:

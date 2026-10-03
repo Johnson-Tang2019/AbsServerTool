@@ -57,9 +57,9 @@ jobs:
           echo "mod_version=${mod_version}" >> "$GITHUB_OUTPUT"
           echo "minecraft_version=${minecraft_version}" >> "$GITHUB_OUTPUT"
           echo "platform_version=${mod_version}+${minecraft_version}" >> "$GITHUB_OUTPUT"
-          if [[ -d "26.2Fabric" && -d "26.2NeoForge" ]]; then
-            echo "fabric_artifact=26.2Fabric/build/libs/absservertool-fabric-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
-            echo "neoforge_artifact=26.2NeoForge/build/libs/absservertool-neoforge-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
+          if [[ -d "${minecraft_version}Fabric" && -d "${minecraft_version}NeoForge" ]]; then
+            echo "fabric_artifact=${minecraft_version}Fabric/build/libs/absservertool-fabric-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
+            echo "neoforge_artifact=${minecraft_version}NeoForge/build/libs/absservertool-neoforge-${mod_version}+${minecraft_version}.jar" >> "$GITHUB_OUTPUT"
             echo "has_neoforge=true" >> "$GITHUB_OUTPUT"
           else
             echo "fabric_artifact=build/libs/absservertool-${mod_version}.jar" >> "$GITHUB_OUTPUT"

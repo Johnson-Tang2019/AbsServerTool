@@ -79,7 +79,7 @@ public final class AbsServerNetworking {
         var today = SnapshotStore.getOrCreateTodayBaseline(context.server());
         int capabilities = ProtocolConstants.ALL_CAPABILITIES | (config.waypoints().enabled() ? ProtocolConstants.CAP_SHARED_WAYPOINTS : 0)
                 | (config.performanceProfiler().enabled() ? ProtocolConstants.CAP_PERFORMANCE_PROFILER : 0);
-        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.3.5-SNAPSHOT", capabilities,
+        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.3.5", capabilities,
                 config.leaderboard().pageSize(), today.dateKey(), config.snapshot().timezone(), today.partial()));
         ProtocolJoinLogger.onSuccessfulHello(context.player());
         SharedWaypointNetworkingFabric.sendInitial(context.player());
