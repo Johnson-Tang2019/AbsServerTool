@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "abyssredemption.mixin.performance",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "ServerLevelPerformanceMixin",
+    "LevelBlockEntityPerformanceMixin",
+    "ServerSavePerformanceMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

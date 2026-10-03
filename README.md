@@ -1,7 +1,7 @@
 # AbsServerTool
 
-AbsServerTool 0.3.4 provides server-side vanilla statistics, daily snapshots,
-DAU/WAU, trends, and protocol v2 for Minecraft 26.2.
+AbsServerTool 0.3.5-SNAPSHOT provides server-side vanilla statistics, daily snapshots,
+DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 26.2.
 
 The project now builds two server artifacts:
 
@@ -32,6 +32,24 @@ Settings are in `config/absservertool.json` under `waypoints`: `enabled`,
 `maxSymbolLength`. Existing configurations without this section use defaults.
 The client-side Xaero integration belongs to AbsTool and is not part of this
 server repository. See [the protocol and persistence design](doc/SHARED_WAYPOINTS.md).
+
+## Server performance profiler
+
+The profiler is idle until a permission-level-2 operator or the console runs
+`/absserver lag profile [seconds]` (30 seconds by default). Use
+`/absserver lag status`, `/absserver lag stop`, and `/absserver lag last` to
+inspect or end a session. A report is finalized automatically at the requested
+duration; only the most recent report is kept in memory, and a restart clears
+it. Configure bounds and sampling limits under `performanceProfiler` in
+`config/absservertool.json`.
+
+Reports include tick percentiles, per-dimension time, instrumented chunk and
+entity/block-entity timings, chunk loads, player proximity associations, and
+slow ticks. Player associations describe overlapping simulation areas, **not
+causation**. Instrumented timings are diagnostic estimates, not a JVM CPU
+flamegraph. Protocol v2 advertises capability bit 9 and offers admin-only
+start/status/stop and paged report requests; older clients remain supported.
+An AbsMod GUI needs a separate client update to consume these packets.
 
 AbsServerTool is a server-side Fabric/NeoForge 26.2 mod for vanilla statistics,
 snapshots, trends, and player leaderboards.

@@ -44,9 +44,17 @@ public final class ConfigManager {
         waypoints = new AbsServerConfig.Waypoints(waypoints.enabled(), Math.max(2, Math.min(4, waypoints.managePermissionLevel())),
                 Math.max(1, Math.min(1024, waypoints.maxWaypoints())), Math.max(1, Math.min(64, waypoints.maxNameLength())),
                 Math.max(1, Math.min(8, waypoints.maxSymbolLength())));
+        var profiler = value.performanceProfiler() == null ? defaults.performanceProfiler() : value.performanceProfiler();
+        int minimum = Math.max(1, profiler.minimumDurationSeconds());
+        int maximum = profiler.maximumDurationSeconds() == 0 ? 0 : Math.max(minimum, profiler.maximumDurationSeconds());
+        profiler = new AbsServerConfig.PerformanceProfiler(profiler.enabled(), Math.max(minimum,
+                maximum == 0 ? profiler.defaultDurationSeconds() : Math.min(maximum, profiler.defaultDurationSeconds())),
+                minimum, maximum, Math.max(1, profiler.slowTickThresholdMillis()),
+                Math.max(250, profiler.statusPollRecommendedMillis()), Math.max(1, Math.min(20, profiler.reportPageSize())),
+                Math.max(1, Math.min(2000, profiler.maxSlowTicksStored())), Math.max(1, Math.min(20, profiler.maxTypeEntriesPerChunk())));
         return new AbsServerConfig(leaderboard,
                 value.display() == null ? defaults.display() : value.display(),
                 value.placements() == null ? defaults.placements() : value.placements(),
-                network, statistics, snapshot, waypoints);
+                network, statistics, snapshot, waypoints, profiler);
     }
 }

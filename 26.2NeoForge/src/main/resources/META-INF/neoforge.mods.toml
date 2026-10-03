@@ -2,6 +2,9 @@ modLoader="javafml"
 loaderVersion="[1,)"
 license="MIT"
 
+[[mixins]]
+config="absservertool.performance.mixins.json"
+
 [[mods]]
 modId="absservertool"
 version="${version}"

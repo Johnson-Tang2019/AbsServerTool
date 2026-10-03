@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5-SNAPSHOT (unreleased)
+
+- Add an opt-in, in-memory server performance profiler with administrator commands and protocol-v2 reports.
+
 ## 0.3.4
 
 - Add server-authoritative shared waypoint storage, validation, permission checks, and Fabric/NeoForge snapshot and delta networking for future AbsTool Xaero integration.

@@ -1,6 +1,7 @@
 package abyssredemption.neoforge;
 
 import abyssredemption.AbsServerTool;
+import abyssredemption.performance.PerformanceProfiler;
 import abyssredemption.command.AbsServerCommands;
 import abyssredemption.snapshot.SnapshotScheduler;
 import abyssredemption.snapshot.SnapshotStore;
@@ -13,6 +14,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.minecraft.server.level.ServerLevel;
 
 @Mod(AbsServerTool.MOD_ID)
 public final class AbsServerToolNeoForge {
@@ -25,8 +29,21 @@ public final class AbsServerToolNeoForge {
             QQCommands.register(event.getDispatcher());
         });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> SnapshotScheduler.tick(event.getServer()));
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Pre event) -> PerformanceProfiler.onServerTickStart(event.getServer()));
+        NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> PerformanceProfiler.onServerTickEnd(event.getServer()));
+        NeoForge.EVENT_BUS.addListener((LevelTickEvent.Pre event) -> {
+            if (event.getLevel() instanceof ServerLevel level) PerformanceProfiler.onLevelTickStart(level);
+        });
+        NeoForge.EVENT_BUS.addListener((LevelTickEvent.Post event) -> {
+            if (event.getLevel() instanceof ServerLevel level) PerformanceProfiler.onLevelTickEnd(level);
+        });
+        NeoForge.EVENT_BUS.addListener((ChunkEvent.Load event) -> {
+            if (PerformanceProfiler.isRunning() && event.getLevel() instanceof ServerLevel level)
+                PerformanceProfiler.onChunkLoad(level, event.getChunk().getPos(), event.isNewChunk());
+        });
         NeoForge.EVENT_BUS.addListener((ServerTickEvent.Post event) -> QQScheduler.tick(event.getServer()));
         NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> SnapshotStore.recordCleanShutdown(event.getServer()));
+        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> PerformanceProfiler.onServerStopping());
         AbsServerTool.LOGGER.info("Registered NeoForge server platform for protocol v2");
     }
 }
