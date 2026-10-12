@@ -70,6 +70,10 @@ jobs:
       - name: Build release JAR
         run: gradle clean build --no-daemon
 
+      - name: Verify profiler crash regression
+        timeout-minutes: 10
+        run: gradle :fabric:runProfilerRegression --no-daemon
+
       - name: Verify release JAR
         shell: bash
         run: |

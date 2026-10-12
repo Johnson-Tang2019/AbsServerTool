@@ -120,7 +120,7 @@ public final class PerformanceProfiler {
 
     public static void record(ServerLevel level, BlockPos pos, Category category, long elapsed, String typeId) {
         ProfilerSession session = active;
-        if (session == null || state != ProfilerState.RUNNING) return;
+        if (session == null || state != ProfilerState.RUNNING || pos == null) return;
         session.record(level, pos.getX() >> 4, pos.getZ() >> 4, category, Math.max(0, elapsed), typeId);
     }
 

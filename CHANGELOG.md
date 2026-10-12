@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.6 - Minecraft 26.3
+
+- Fix a server crash when a block-entity ticker loses its position while performance analysis is running.
+- Capture position and type before ticking, retain the original chunk attribution, and skip samples without positions.
+- Add an isolated dedicated-server regression to verify ticker removal, null samples, automatic reports, and repeat sessions before publication.
+- Keep Minecraft 26.2 on its unchanged maintenance branch.
+
 ## 0.3.5 - Minecraft 26.3
 
 - Port the dual-loader server mod to Minecraft 26.3 while preserving the 26.2 maintenance branch.

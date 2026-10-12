@@ -22,6 +22,9 @@ jobs:
         with:
           gradle-version: "9.5.1"
       - run: gradle build --no-daemon
+      - name: Verify profiler crash regression
+        timeout-minutes: 10
+        run: gradle :fabric:runProfilerRegression --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: absservertool-${{ github.sha }}

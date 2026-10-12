@@ -1,6 +1,7 @@
 package abyssredemption.mixin.performance;
 
 import abyssredemption.performance.PerformanceProfiler;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
@@ -14,12 +15,16 @@ public abstract class LevelBlockEntityPerformanceMixin {
             target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;tick()V"))
     private void absservertool$timeBlockEntity(TickingBlockEntity ticker) {
         if (!PerformanceProfiler.isRunning()) { ticker.tick(); return; }
+        // Ticking may detach or rebind the ticker, making its position unavailable.
+        BlockPos tickerPos = ticker.getPos();
+        BlockPos pos = tickerPos == null ? null : tickerPos.immutable();
+        String type = ticker.getType();
         long start = System.nanoTime();
         try { ticker.tick(); }
         finally {
             if ((Object) this instanceof ServerLevel level)
-                PerformanceProfiler.record(level, ticker.getPos(), PerformanceProfiler.Category.BLOCK_ENTITY,
-                        System.nanoTime() - start, ticker.getType());
+                PerformanceProfiler.record(level, pos, PerformanceProfiler.Category.BLOCK_ENTITY,
+                        System.nanoTime() - start, type);
         }
     }
 }

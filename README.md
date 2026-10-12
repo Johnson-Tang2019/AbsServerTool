@@ -1,6 +1,6 @@
 # AbsServerTool
 
-AbsServerTool 0.3.5 provides server-side vanilla statistics, daily snapshots,
+AbsServerTool 0.3.6 provides server-side vanilla statistics, daily snapshots,
 DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 26.3.
 
 The project now builds two server artifacts:
@@ -57,6 +57,11 @@ causation**. Instrumented timings are diagnostic estimates, not a JVM CPU
 flamegraph. Protocol v2 advertises capability bit 9 and offers admin-only
 start/status/stop and paged report requests; older clients remain supported.
 An AbsMod GUI needs a separate client update to consume these packets.
+
+Run the isolated Fabric crash regression with
+`./gradlew :fabric:runProfilerRegression`. It checks ticker removal, missing
+positions, chunk attribution, automatic completion, and repeated sessions.
+The fixture is excluded from production JARs and also runs before publishing.
 
 AbsServerTool is a server-side Fabric/NeoForge 26.3 mod for vanilla statistics,
 snapshots, trends, and player leaderboards.

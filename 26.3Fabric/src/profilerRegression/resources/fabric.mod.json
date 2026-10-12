@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "absservertool_profiler_regression",
+  "version": "1.0.0",
+  "name": "AbsServerTool profiler regression fixture",
+  "environment": "server",
+  "entrypoints": {"main": ["abyssredemption.regression.ProfilerRegression"]},
+  "depends": {"absservertool": "*", "fabric-api": "*"}
+}
