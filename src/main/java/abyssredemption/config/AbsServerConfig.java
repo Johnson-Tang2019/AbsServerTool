@@ -1,6 +1,7 @@
 package abyssredemption.config;
 
-public record AbsServerConfig(Leaderboard leaderboard, Display display, Placements placements, Network network, Statistics statistics, Snapshot snapshot, Waypoints waypoints, PerformanceProfiler performanceProfiler) {
+public record AbsServerConfig(Leaderboard leaderboard, Display display, Placements placements, Network network, Statistics statistics, Snapshot snapshot, Waypoints waypoints, PerformanceProfiler performanceProfiler, PiglinOptimization piglinOptimization) {
+    public record PiglinOptimization(boolean enabled, int entityLimit) {}
     public record Leaderboard(int pageSize, int cacheTtlSeconds, boolean includeZeroValues) {}
     public record Display(boolean showUuidOnHover, boolean enableClickablePagination) {}
     public record Placements(boolean enabled, boolean countCreativePlacements, boolean includeFakePlayers,
@@ -18,6 +19,6 @@ public record AbsServerConfig(Leaderboard leaderboard, Display display, Placemen
         return new AbsServerConfig(new Leaderboard(10, 30, false), new Display(true, true),
                 new Placements(true, true, false, "SYSTEM", "MONDAY", 12), new Network(true, 500), new Statistics(true, 30), new Snapshot("SYSTEM", 180),
                 new Waypoints(true, 2, 256, 64, 8),
-                new PerformanceProfiler(true, 30, 1, 3600, 50, 2000, 20, 200, 20));
+                new PerformanceProfiler(true, 30, 1, 3600, 50, 2000, 20, 200, 20), new PiglinOptimization(false, 100));
     }
 }

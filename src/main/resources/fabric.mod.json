@@ -6,7 +6,7 @@
   "description": "Server-side statistics and leaderboard tools.",
   "environment": "server",
   "entrypoints": { "main": ["abyssredemption.fabric.AbsServerToolFabric"] },
-  "mixins": ["absservertool.performance.mixins.json"],
+  "mixins": ["absservertool.performance.mixins.json", "absservertool.optimization.mixins.json"],
   "depends": {
     "fabricloader": ">=0.18.0",
     "minecraft": "26.3.x",

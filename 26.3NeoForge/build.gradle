@@ -1,11 +1,42 @@
 plugins { id 'net.neoforged.moddev' }
 
+sourceSets {
+    piglinRegression {
+        java.srcDir rootProject.file('src/regression/java')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
 neoForge {
     version = rootProject.neo_version
-    runs {
-        server { server(); programArgument '--nogui' }
+    mods {
+        absservertool { sourceSet sourceSets.main }
+        absservertool_piglin_regression { sourceSet sourceSets.piglinRegression }
     }
-    mods { absservertool { sourceSet sourceSets.main } }
+    runs {
+        server { server(); programArgument '--nogui'; loadedMods = [mods.absservertool] }
+        piglinRegression {
+            server()
+            programArgument '--nogui'
+            sourceSet = sourceSets.piglinRegression
+            gameDirectory = file('run/piglin-regression')
+            loadedMods = [mods.absservertool, mods.absservertool_piglin_regression]
+        }
+    }
+}
+
+tasks.register('preparePiglinRegression', Copy) {
+    from rootProject.file('26.3Fabric/src/piglinRegression/server')
+    into 'run/piglin-regression'
+    filter { line -> line == 'server-port=25572' ? 'server-port=25573' : line }
+}
+tasks.named('runPiglinRegression') {
+    dependsOn 'preparePiglinRegression'
+    doLast {
+        def log = file('run/piglin-regression/logs/latest.log')
+        if (!log.exists() || !log.text.contains('PIGLIN_REGRESSION_PASSED:')) throw new GradleException('NeoForge piglin regression did not pass')
+    }
 }
 
 sourceSets.main.java.exclude 'abyssredemption/network/AbsServerNetworking.java'

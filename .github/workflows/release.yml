@@ -75,6 +75,7 @@ jobs:
         run: gradle :fabric:runProfilerRegression --no-daemon
 
       - name: Verify release JAR
+        # These tests must pass before any public platform upload.
         shell: bash
         run: |
           set -euo pipefail
@@ -82,6 +83,14 @@ jobs:
           if [[ "${{ steps.release.outputs.has_neoforge }}" == "true" ]]; then
             test -f "${{ steps.release.outputs.neoforge_artifact }}"
           fi
+
+      - name: Verify Fabric piglin barter regression without Carpet
+        timeout-minutes: 10
+        run: gradle :fabric:runPiglinRegression --no-daemon
+
+      - name: Verify NeoForge piglin barter regression without Carpet
+        timeout-minutes: 10
+        run: gradle :neoforge:runPiglinRegression --no-daemon
 
       - name: Publish Fabric to Modrinth and CurseForge
         uses: Kir-Antipov/mc-publish@52307b03863581dec6b652b83e597aec02ebb075 # v3.3.1

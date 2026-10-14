@@ -11,12 +11,18 @@ sourceSets {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
     }
+    piglinRegression {
+        java.srcDir rootProject.file('src/regression/java')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
 }
 
 loom {
     mods {
         absservertool { sourceSet sourceSets.main }
         absservertool_profiler_regression { sourceSet sourceSets.profilerRegression }
+        absservertool_piglin_regression { sourceSet sourceSets.piglinRegression }
     }
     runs {
         server { server(); runDir 'run' }
@@ -25,6 +31,23 @@ loom {
             source sourceSets.profilerRegression
             runDir 'run/profiler-regression'
         }
+        piglinRegression {
+            server()
+            source sourceSets.piglinRegression
+            runDir 'run/piglin-regression'
+        }
+    }
+}
+
+tasks.register('preparePiglinRegression', Copy) {
+    from 'src/piglinRegression/server'
+    into 'run/piglin-regression'
+}
+tasks.named('runPiglinRegression') {
+    dependsOn 'preparePiglinRegression'
+    doLast {
+        def log = file('run/piglin-regression/logs/latest.log')
+        if (!log.exists() || !log.text.contains('PIGLIN_REGRESSION_PASSED:')) throw new GradleException('Piglin regression did not pass')
     }
 }
 

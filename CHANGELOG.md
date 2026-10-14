@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.7 - Minecraft 26.3
+
+- Add opt-in piglin barter-farm optimization with `/absserver piglinOptimization true|false` and `limit <count>` (OP level 2, default disabled, default threshold 100).
+- Persist settings atomically; preserve vanilla gold acceptance, barter timing and loot tables while reducing stacked-piglin movement, sensing, interaction and pushing work.
+- Port only the upstream MIT-licensed optimization files, retain attribution, and add no Carpet or other runtime dependencies.
+- Verify real gold pickup, admiration and barter loot on both Fabric and NeoForge, plus permissions, thresholds, entity isolation, movement restoration and configuration persistence.
+- Gate releases on both real-server barter regressions and the existing profiler crash regression; test fixtures are excluded from production JARs.
+- Keep Minecraft 26.2 code, maintenance branch and build environment unchanged.
+
 ## 0.3.6 - Minecraft 26.3
 
 - Fix a server crash when a block-entity ticker loses its position while performance analysis is running.

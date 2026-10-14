@@ -5,6 +5,9 @@ license="MIT"
 [[mixins]]
 config="absservertool.performance.mixins.json"
 
+[[mixins]]
+config="absservertool.optimization.mixins.json"
+
 [[mods]]
 modId="absservertool"
 version="${version}"

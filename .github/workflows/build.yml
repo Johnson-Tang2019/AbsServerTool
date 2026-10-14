@@ -25,6 +25,12 @@ jobs:
       - name: Verify profiler crash regression
         timeout-minutes: 10
         run: gradle :fabric:runProfilerRegression --no-daemon
+      - name: Verify piglin barter regression without Carpet
+        timeout-minutes: 10
+        run: gradle :fabric:runPiglinRegression --no-daemon
+      - name: Verify NeoForge piglin barter regression without Carpet
+        timeout-minutes: 10
+        run: gradle :neoforge:runPiglinRegression --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: absservertool-${{ github.sha }}

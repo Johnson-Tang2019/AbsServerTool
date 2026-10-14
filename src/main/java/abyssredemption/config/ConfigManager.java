@@ -30,6 +30,23 @@ public final class ConfigManager {
 
     public static AbsServerConfig get() { return config; }
 
+    public static void setPiglinOptimization(boolean enabled, int entityLimit) throws IOException {
+        if (entityLimit < 1 || entityLimit > 10000) throw new IllegalArgumentException("Invalid piglin entity limit");
+        var next = new AbsServerConfig(config.leaderboard(), config.display(), config.placements(), config.network(),
+                config.statistics(), config.snapshot(), config.waypoints(), config.performanceProfiler(),
+                new AbsServerConfig.PiglinOptimization(enabled, entityLimit));
+        Path path = Path.of("config", "absservertool.json");
+        Files.createDirectories(path.getParent());
+        Path temporary = Files.createTempFile(path.getParent(), "absservertool-", ".tmp");
+        try {
+            Files.writeString(temporary, GSON.toJson(next), StandardCharsets.UTF_8);
+            try { Files.move(temporary, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
+            catch (java.nio.file.AtomicMoveNotSupportedException e) { Files.move(temporary, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+            config = next;
+            abyssredemption.optimization.PiglinOptimization.invalidate();
+        } finally { Files.deleteIfExists(temporary); }
+    }
+
     private static AbsServerConfig normalize(AbsServerConfig value) {
         AbsServerConfig defaults = AbsServerConfig.defaults();
         var leaderboard = value.leaderboard() == null ? defaults.leaderboard() : value.leaderboard();
@@ -55,6 +72,9 @@ public final class ConfigManager {
         return new AbsServerConfig(leaderboard,
                 value.display() == null ? defaults.display() : value.display(),
                 value.placements() == null ? defaults.placements() : value.placements(),
-                network, statistics, snapshot, waypoints, profiler);
+                network, statistics, snapshot, waypoints, profiler,
+                value.piglinOptimization() == null ? defaults.piglinOptimization() :
+                        new AbsServerConfig.PiglinOptimization(value.piglinOptimization().enabled(),
+                                Math.max(1, Math.min(10000, value.piglinOptimization().entityLimit()))));
     }
 }

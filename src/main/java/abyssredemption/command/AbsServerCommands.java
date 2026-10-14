@@ -43,6 +43,7 @@ public final class AbsServerCommands {
                 .then(Commands.literal("week").executes(context -> showStatisticsBoard(context.getSource(), StatisticsLeaderboardType.WEEK_PLACEMENTS, "本周方块放置", 1)).then(boardPage(StatisticsLeaderboardType.WEEK_PLACEMENTS, "本周方块放置")));
         dispatcher.register(Commands.literal("absserver")
                 .then(PerformanceCommands.node())
+                .then(abyssredemption.optimization.PiglinOptimizationCommands.node())
                 .then(Commands.literal("stats").executes(context -> showOverview(context.getSource())))
                 .then(playtimeBoards).then(deathBoards).then(placementBoards)
                 .then(Commands.literal("advancements")

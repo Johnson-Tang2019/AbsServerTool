@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "abyssredemption.mixin.optimization",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["EntityPiglinOptimizationMixin", "LivingPiglinOptimizationMixin", "BrainPiglinOptimizationMixin", "PiglinAiOptimizationMixin", "LookTargetPiglinOptimizationMixin", "LookInteractPiglinOptimizationMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

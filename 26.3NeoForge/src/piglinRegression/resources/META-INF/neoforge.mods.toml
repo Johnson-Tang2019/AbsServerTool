@@ -1,0 +1,7 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="All Rights Reserved"
+[[mods]]
+modId="absservertool_piglin_regression"
+version="1.0.0"
+displayName="AbsServerTool piglin regression fixture"
