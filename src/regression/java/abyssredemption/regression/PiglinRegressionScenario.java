@@ -30,6 +30,8 @@ public final class PiglinRegressionScenario {
     private ItemEntity gold;
     private int ticks;
     private boolean admired;
+    private boolean observedBarterLoot;
+    private final java.util.Set<java.util.UUID> preexistingItems = new java.util.HashSet<>();
     public void started(MinecraftServer server) {
             var level=server.overworld(); level.setChunkForced(0,0,true); level.getChunk(0,0);
     }
@@ -68,13 +70,26 @@ public final class PiglinRegressionScenario {
                 require(!wantsPickup(piglin,new ItemStack(Items.GOLD_NUGGET)),"Non-gold pickup not suppressed");
                 gold=new ItemEntity(server.overworld(),piglin.getX(),piglin.getY(),piglin.getZ(),new ItemStack(Items.GOLD_INGOT));
                 gold.setNoPickUpDelay(); server.overworld().addFreshEntity(gold);
+                server.overworld().getEntitiesOfClass(ItemEntity.class,piglin.getBoundingBox().inflate(16))
+                        .forEach(item -> preexistingItems.add(item.getUUID()));
             }
-            if (ticks>60) admired |= stacked.getFirst().getOffhandItem().is(Items.GOLD_INGOT);
+            if (ticks>60) {
+                var piglin=stacked.getFirst();
+                admired |= piglin.getOffhandItem().is(Items.GOLD_INGOT);
+                // Observe the emission, not its later location after random throw/fall motion.
+                if (admired && gold.isRemoved() && piglin.getOffhandItem().isEmpty() && !observedBarterLoot) {
+                    var emitted=server.overworld().getEntitiesOfClass(ItemEntity.class,piglin.getBoundingBox().inflate(4),
+                            item -> !item.getItem().is(Items.GOLD_INGOT) && !preexistingItems.contains(item.getUUID()));
+                    if (!emitted.isEmpty()) {
+                        observedBarterLoot=true;
+                        AbsServerTool.LOGGER.info("Piglin barter loot observed at tick {}: {} new item entities",ticks,emitted.size());
+                    }
+                }
+            }
             if (ticks==240) {
                 require(admired && gold.isRemoved(),"Natural gold pickup/admiration failed");
                 require(stacked.getFirst().getOffhandItem().isEmpty(),"Barter never completed");
-                require(!server.overworld().getEntitiesOfClass(ItemEntity.class,stacked.getFirst().getBoundingBox().inflate(16),
-                        item -> !item.getItem().is(Items.GOLD_INGOT)).isEmpty(),"Barter produced no loot");
+                require(observedBarterLoot,"Barter produced no observed loot");
                 command(server,"absserver piglinOptimization false");
                 require(stacked.stream().noneMatch(PiglinOptimization::active),"Disable did not immediately restore vanilla");
                 ConfigManager.load(); require(!ConfigManager.get().piglinOptimization().enabled()
