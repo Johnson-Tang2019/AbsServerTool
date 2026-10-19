@@ -6,6 +6,7 @@ import abyssredemption.network.NetworkRateLimiter;
 import abyssredemption.network.ProtocolConstants;
 import abyssredemption.network.payload.*;
 import abyssredemption.waypoint.SharedWaypointService;
+import abyssredemption.waypoint.WaypointCategoryService;
 import abyssredemption.waypoint.SharedWaypointStore;
 import java.io.IOException;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -13,11 +14,25 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class SharedWaypointNetworkingFabric {
+    private static final NetworkRateLimiter CATEGORY_LIMITER = new NetworkRateLimiter();
     private static final NetworkRateLimiter SYNC_LIMITER = new NetworkRateLimiter();
     private static final NetworkRateLimiter MUTATION_LIMITER = new NetworkRateLimiter();
     private SharedWaypointNetworkingFabric() {}
 
     public static void register() {
+        PayloadTypeRegistry.serverboundPlay().register(WaypointCategories.Request.TYPE,WaypointCategories.Request.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(WaypointCategories.Snapshot.TYPE,WaypointCategories.Snapshot.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(WaypointCategories.Request.TYPE,(p,c) -> {
+            if(!ServerPlayNetworking.canSend(c.player(),WaypointCategories.Snapshot.TYPE)) return;
+            if(!CATEGORY_LIMITER.allow(c.player().getUUID(),500)) {
+                ServerPlayNetworking.send(c.player(),new WaypointCategories.Snapshot(ProtocolConstants.PROTOCOL_VERSION,p.requestId(),6,0,java.util.Map.of())); return;
+            }
+            var response=WaypointCategoryService.handle(c.player(),p);
+            ServerPlayNetworking.send(c.player(),response);
+            if(p.edit() && response.status()==0) for(var other:c.server().getPlayerList().getPlayers())
+                if(other!=c.player() && ServerPlayNetworking.canSend(other,WaypointCategories.Snapshot.TYPE))
+                    ServerPlayNetworking.send(other,new WaypointCategories.Snapshot(response.version(),0,0,response.revision(),response.names()));
+        });
         PayloadTypeRegistry.serverboundPlay().register(SharedWaypointSyncRequestPayload.TYPE, SharedWaypointSyncRequestPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(SharedWaypointMutationRequestPayload.TYPE, SharedWaypointMutationRequestPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(SharedWaypointSnapshotPayload.TYPE, SharedWaypointSnapshotPayload.CODEC);

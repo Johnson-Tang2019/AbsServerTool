@@ -30,3 +30,23 @@ subprojects {
 }
 
 tasks.named('build') { dependsOn ':fabric:build', ':neoforge:build' }
+
+subprojects {
+    sourceSets {
+        categoryVerification {
+            java.srcDir rootProject.file('src/verification/java')
+            compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+        }
+    }
+    def verifyCategories = tasks.register('verifyWaypointCategories', JavaExec) {
+        group = 'verification'
+        dependsOn tasks.named('categoryVerificationClasses')
+        classpath = sourceSets.categoryVerification.runtimeClasspath
+        mainClass = 'abyssredemption.verification.CategoryVerification'
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+        workingDir = layout.buildDirectory.dir('category-verification').get().asFile
+        doFirst { workingDir.mkdirs() }
+    }
+    tasks.named('check') { dependsOn verifyCategories }
+}

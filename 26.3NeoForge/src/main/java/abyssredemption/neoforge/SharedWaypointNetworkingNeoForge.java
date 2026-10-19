@@ -6,6 +6,7 @@ import abyssredemption.network.NetworkRateLimiter;
 import abyssredemption.network.ProtocolConstants;
 import abyssredemption.network.payload.*;
 import abyssredemption.waypoint.SharedWaypointService;
+import abyssredemption.waypoint.WaypointCategoryService;
 import java.io.IOException;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -14,11 +15,25 @@ import net.neoforged.neoforge.network.registration.NetworkRegistry;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public final class SharedWaypointNetworkingNeoForge {
+    private static final NetworkRateLimiter CATEGORY_LIMITER = new NetworkRateLimiter();
     private static final NetworkRateLimiter SYNC_LIMITER = new NetworkRateLimiter();
     private static final NetworkRateLimiter MUTATION_LIMITER = new NetworkRateLimiter();
     private SharedWaypointNetworkingNeoForge() {}
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.optional().playToServer(WaypointCategories.Request.TYPE,WaypointCategories.Request.CODEC,(p,c) -> c.enqueueWork(() -> {
+            var player=(ServerPlayer)c.player();
+            if(!canSend(player,WaypointCategories.Snapshot.TYPE)) return;
+            if(!CATEGORY_LIMITER.allow(player.getUUID(),500)) {
+                PacketDistributor.sendToPlayer(player,new WaypointCategories.Snapshot(ProtocolConstants.PROTOCOL_VERSION,p.requestId(),6,0,java.util.Map.of())); return;
+            }
+            var response=WaypointCategoryService.handle(player,p);
+            PacketDistributor.sendToPlayer(player,response);
+            if(p.edit() && response.status()==0) for(var other:player.level().getServer().getPlayerList().getPlayers())
+                if(other!=player && canSend(other,WaypointCategories.Snapshot.TYPE))
+                    PacketDistributor.sendToPlayer(other,new WaypointCategories.Snapshot(response.version(),0,0,response.revision(),response.names()));
+        }));
+        registrar.optional().playToClient(WaypointCategories.Snapshot.TYPE,WaypointCategories.Snapshot.CODEC);
         registrar.playToServer(SharedWaypointSyncRequestPayload.TYPE, SharedWaypointSyncRequestPayload.CODEC, (p, c) ->
                 c.enqueueWork(() -> sync(p, c)));
         registrar.playToServer(SharedWaypointMutationRequestPayload.TYPE, SharedWaypointMutationRequestPayload.CODEC, (p, c) ->

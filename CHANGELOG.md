@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.8 - Minecraft 26.3
+
+- Add optional shared waypoint color-category names for AbsTool 0.5.0-beta.8 on Fabric and NeoForge.
+- Store names and revisions atomically in a separate world-owned JSON file; preserve the existing protocol-v2 waypoint packets and waypoint data.
+- Validate management permission, enabled state, names and expected revision on the server before every rename; broadcast only after a successful disk commit.
+- Add build checks for administrator/viewer permissions, conflicts, invalid names, restart persistence and corrupt-store preservation.
+
 ## 0.3.7 - Minecraft 26.3
 
 - Add opt-in piglin barter-farm optimization with `/absserver piglinOptimization true|false` and `limit <count>` (OP level 2, default disabled, default threshold 100).
