@@ -67,3 +67,22 @@ Only waypoints are synchronized. There is no map tile, exploration, route,
 position, team, cross-server, or automatic Nether-coordinate synchronization.
 AbsTool must implement the Xaero display/GUI bridge separately. This server
 implementation does not edit player Xaero files or require Xaero on the server.
+
+## Minecraft 26.3 category names (0.3.8)
+
+AbsTool 0.5.0-beta.8 can read and rename the sixteen color categories using two
+optional protocol-v2 channels. Existing waypoint payloads remain unchanged.
+
+- C2S absservertool:waypoint_categories_request: version, requestId, edit flag, color, expectedRevision, name.
+- S2C absservertool:waypoint_categories_snapshot: version, requestId, status, revision, color/name map.
+
+A request with edit=false reads the current names. Rename requests require the
+existing waypoint management permission, enabled waypoints, a matching category
+revision, color 0..15, and a name of at most 32 characters without control or
+formatting codes. Blank names restore the default label. Requests are limited
+to one per player per 500 ms. Names are saved separately in the world's
+data/absservertool_waypoint_categories.json using temporary-file replacement.
+Only committed changes are broadcast. Old clients need not register either
+channel; old servers continue to support ordinary waypoints in the new client.
+Both loaders run verifyWaypointCategories as part of build/check for permission,
+conflict, validation, restart persistence and corrupt-store preservation checks.
