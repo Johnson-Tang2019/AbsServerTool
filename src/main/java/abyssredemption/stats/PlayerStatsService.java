@@ -13,14 +13,17 @@ import net.minecraft.server.MinecraftServer;
 public final class PlayerStatsService {
     private Map<UUID, PlayerStatSnapshot> cached = Map.of();
     private long cacheExpiresAtMillis;
+    private long exclusionRevision = -1;
     public Map<UUID, PlayerStatSnapshot> collectAllStats(MinecraftServer server) {
         ExcludedPlayers.get().observe(server);
         long now = System.currentTimeMillis();
-        if (now < cacheExpiresAtMillis) return withoutExcluded(server, cached);
+        long revision = ExcludedPlayers.get().revision();
+        if (now < cacheExpiresAtMillis && exclusionRevision == revision) return withoutExcluded(server, cached);
         Map<UUID, PlayerStatSnapshot> result = new HashMap<>();
         var reader = new VanillaStatsReader(ConfigManager.get().statistics().includeModdedBlockItems());
         reader.readAll(server).forEach((uuid, snapshot) -> result.put(uuid, new PlayerStatSnapshot(uuid, snapshot.playTimeTicks(), snapshot.deaths(), snapshot.vanillaBlockPlacementCount())));
         cached = Map.copyOf(result);
+        exclusionRevision = revision;
         cacheExpiresAtMillis = now + ConfigManager.get().statistics().currentStatsCacheSeconds() * 1000L;
         return withoutExcluded(server, cached);
     }

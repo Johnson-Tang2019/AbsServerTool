@@ -8,6 +8,9 @@ config="absservertool.performance.mixins.json"
 [[mixins]]
 config="absservertool.optimization.mixins.json"
 
+[[mixins]]
+config="absservertool.player.mixins.json"
+
 [[mods]]
 modId="absservertool"
 version="${version}"

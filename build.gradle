@@ -49,4 +49,12 @@ subprojects {
         doFirst { workingDir.mkdirs() }
     }
     tasks.named('check') { dependsOn verifyCategories }
+    def verifyExclusions = tasks.register('verifyPlayerExclusions', JavaExec) {
+        group = 'verification'
+        dependsOn tasks.named('categoryVerificationClasses')
+        classpath = sourceSets.categoryVerification.runtimeClasspath
+        mainClass = 'abyssredemption.player.ExclusionVerification'
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+    }
+    tasks.named('check') { dependsOn verifyExclusions }
 }

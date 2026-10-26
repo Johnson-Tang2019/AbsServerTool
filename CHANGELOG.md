@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.9 - Minecraft 26.3
+
+- Remember Carpet fake players when they leave, including bots removed between polling ticks, on both loaders without a Carpet dependency.
+- Apply explicit player exclusions to online players as well as offline statistics and history; invalidate cached statistics on exclusion changes.
+- Add OP-level-2 `/absserver excludePlayer [add|remove <nameOrUuid>]` for legacy offline bots that were never observed. Names are case-insensitive; no heuristic name or UUID classification is used.
+- Save exclusions atomically and preserve unreadable files. Shadow players are filtered while online but are not permanently excluded automatically.
+
 ## 0.3.8 - Minecraft 26.3
 
 - Add optional shared waypoint color-category names for AbsTool 0.5.0-beta.8 on Fabric and NeoForge.

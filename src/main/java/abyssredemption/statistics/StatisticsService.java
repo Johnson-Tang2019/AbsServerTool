@@ -42,11 +42,13 @@ public final class StatisticsService {
     }
     public static long delta(long current, long baseline) { return current < baseline ? 0 : current - baseline; }
     public java.util.List<DailyMetric> getDailyMetrics(MinecraftServer server, int days) {
+        ExcludedPlayers.get().observe(server);
         ZoneId zone = zone(); LocalDate end = LocalDate.now(zone); int count = Math.max(1, Math.min(90, days)); var snapshots = SnapshotStore.getSnapshotsBetween(server, end.minusDays(count), end); var byDate = new java.util.HashMap<String, DailySnapshot>(); snapshots.forEach(s -> byDate.put(s.dateKey(), s)); var result = new ArrayList<DailyMetric>();
         for (int i = count - 1; i >= 0; i--) { LocalDate date = end.minusDays(i); DailySnapshot start = byDate.get(date.toString()); DailySnapshot finish = byDate.get(date.plusDays(1).toString()); if (finish == null && date.equals(end)) { result.add(metricFromCurrent(server, date, start)); continue; } if (start == null || finish == null) { result.add(new DailyMetric(date.toString(), 0, 0, 0, 0, false)); continue; } result.add(metricBetween(start, finish, date.toString())); }
         return List.copyOf(result);
     }
     public java.util.List<WeeklyMetric> getWeeklyMetrics(MinecraftServer server, int weeks) {
+        ExcludedPlayers.get().observe(server);
         ZoneId zone = zone(); LocalDate end = LocalDate.now(zone); int count = Math.max(1, Math.min(26, weeks)); LocalDate thisMonday = end.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); var snapshots = SnapshotStore.getSnapshotsBetween(server, thisMonday.minusWeeks(count), thisMonday.plusDays(1)); var byDate = new java.util.HashMap<String, DailySnapshot>(); snapshots.forEach(s -> byDate.put(s.dateKey(), s)); var result = new ArrayList<WeeklyMetric>();
         for (int i = count - 1; i >= 0; i--) { LocalDate monday = thisMonday.minusWeeks(i), next = monday.plusWeeks(1); DailySnapshot start = byDate.get(monday.toString()), finish = byDate.get(next.toString()); if (finish == null && next.isAfter(end)) { result.add(metricWeekFromCurrent(server, monday, start)); continue; } result.add(start == null || finish == null ? new WeeklyMetric(weekKey(monday), 0, 0, 0, 0, false) : metricWeekBetween(start, finish, weekKey(monday))); }
         return List.copyOf(result);
