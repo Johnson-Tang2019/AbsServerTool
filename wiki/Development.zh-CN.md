@@ -2,7 +2,7 @@
 
 [首页](Home.zh-CN.md)
 
-当前 `main`：Minecraft 26.3 / AbsServerTool 0.3.7。
+当前 `main`：Minecraft 26.3 / AbsServerTool 0.3.9。
 
 共享核心：
 

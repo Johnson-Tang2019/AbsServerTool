@@ -4,7 +4,7 @@
 
 ## Minecraft 26.3
 
-当前 `main` 为 AbsServerTool **0.3.7**，同时构建 Fabric 与 NeoForge 服务端 JAR。
+当前 `main` 为 AbsServerTool **0.3.9**，同时构建 Fabric 与 NeoForge 服务端 JAR。
 
 - Java 25 开发/构建环境。
 - Fabric 构建基线：Loader 0.19.5、Fabric API 0.161.0+26.3。

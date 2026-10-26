@@ -1,7 +1,14 @@
 # AbsServerTool
 
-AbsServerTool 0.3.6 provides server-side vanilla statistics, daily snapshots,
+AbsServerTool 0.3.9 provides server-side vanilla statistics, daily snapshots,
 DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 26.3.
+
+Documentation: [GitHub Wiki](https://github.com/Johnson-Tang2019/AbsServerTool/wiki)
+([简体中文](https://github.com/Johnson-Tang2019/AbsServerTool/wiki/Home.zh-CN)).
+
+For legacy offline Carpet bots, operators can use
+`/absserver excludePlayer add <nameOrUuid>` to exclude them from statistics;
+see [player exclusions](doc/PLAYER_EXCLUSIONS.md).
 
 The project now builds two server artifacts:
 

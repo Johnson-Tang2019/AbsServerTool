@@ -30,8 +30,24 @@ DAU 是今日 `play_time` 出现正增量的不同玩家数；WAU 同理作用�
 
 ## 假人过滤
 
-运行期间识别到的 Carpet fake player 会被排除。旧存档假人可配置在：
+在线 Carpet fake player 会被排除；运行期间观察到的普通假人 UUID 会持久保存，
+退出和重启后仍排除。0.3.9 还会在假人退出时记录，覆盖两次轮询之间创建并移除的假人。
+Carpet shadow 仅在假人在线期间自动排除，不会自动永久排除真人 UUID。
+
+未被观察过的旧离线假人无法仅凭原版统计数据识别，管理员可立即添加：
+
+~~~text
+/absserver excludePlayer add <名字或UUID>
+~~~
+
+排除适用于在线人数、玩家数、在线时长、死亡、方块、进度榜、DAU/WAU 和历史快照显示，
+不会删除原版玩家数据或快照。使用 `/absserver excludePlayer remove <名字或UUID>` 恢复。
+正在运行的假人始终排除；移除其 UUID 后，自动观察会再次记录。
+
+名单持久化文件：
 
 ~~~text
 config/absservertool-excluded-players.json
 ~~~
+
+命令修改立即生效。手工编辑文件需要重启后读取；文件损坏时会保留原文件并拒绝覆盖。

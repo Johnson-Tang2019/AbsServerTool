@@ -2,13 +2,13 @@
 
 [English](Home.md)
 
-本 Wiki 根据 `main` 最新代码整理。最后核对服务端代码提交：`a49559849c7d4242996a25ade360b6f87405c05f`。
+本 Wiki 根据 `main` 最新代码整理。最后核对服务端代码：`v0.3.9`（`05cbd20`）。
 
 ## 当前版本
 
 | Minecraft | AbsServerTool | 加载器 | 状态 |
 | --- | --- | --- | --- |
-| 26.3 | 0.3.7 | Fabric、NeoForge | 当前主线 |
+| 26.3 | 0.3.9 | Fabric、NeoForge | 当前主线 |
 | 26.2 | 维护分支 | Fabric、NeoForge | `codex/26.2-maintenance` |
 
 ## 当前功能

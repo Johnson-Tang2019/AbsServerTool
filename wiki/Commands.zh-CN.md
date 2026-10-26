@@ -26,6 +26,20 @@
 /absserver blocks placed weekly [page]
 ~~~
 
+## 排除假人统计
+
+管理员（OP 等级 2）：
+
+~~~text
+/absserver excludePlayer
+/absserver excludePlayer add <名字或UUID>
+/absserver excludePlayer remove <名字或UUID>
+~~~
+
+不带参数查看排除名单。新增或移除后立即刷新统计并保存，名字不区分大小写。
+历史离线假人若没有被记录过，需要手动添加；名字已不在 usercache.json 时使用 UUID。
+同一玩家的名字项与 UUID 项相互独立，恢复统计时需要分别移除。
+
 ## 性能分析
 
 管理员：
