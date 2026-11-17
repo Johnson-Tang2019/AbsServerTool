@@ -6,6 +6,8 @@ DAU/WAU, trends, explicit performance profiling, and protocol v2 for Minecraft 2
 Documentation: [GitHub Wiki](https://github.com/Johnson-Tang2019/AbsServerTool/wiki)
 ([简体中文](https://github.com/Johnson-Tang2019/AbsServerTool/wiki/Home.zh-CN)).
 
+See [server updates](doc/UPDATES.md) for automatic checks, Beta releases and installation after shutdown.
+
 For legacy offline Carpet bots, operators can use
 `/absserver excludePlayer add <nameOrUuid>` to exclude them from statistics;
 see [player exclusions](doc/PLAYER_EXCLUSIONS.md).

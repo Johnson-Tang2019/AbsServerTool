@@ -20,7 +20,11 @@ public final class ConfigManager {
             if (Files.notExists(path)) {
                 Files.writeString(path, GSON.toJson(config), StandardCharsets.UTF_8);
             } else {
-                AbsServerConfig loaded = GSON.fromJson(Files.readString(path, StandardCharsets.UTF_8), AbsServerConfig.class);
+                var document = com.google.gson.JsonParser.parseString(Files.readString(path, StandardCharsets.UTF_8)).getAsJsonObject();
+                var social = GSON.toJsonTree(abyssredemption.social.SocialConfig.defaults()).getAsJsonObject();
+                if (document.has("socialLeaderboards") && !document.get("socialLeaderboards").isJsonNull()) merge(social, document.getAsJsonObject("socialLeaderboards"));
+                document.add("socialLeaderboards", social);
+                AbsServerConfig loaded = GSON.fromJson(document, AbsServerConfig.class);
                 if (loaded != null) config = normalize(loaded);
             }
         } catch (Exception e) {
@@ -34,7 +38,7 @@ public final class ConfigManager {
         if (entityLimit < 1 || entityLimit > 10000) throw new IllegalArgumentException("Invalid piglin entity limit");
         var next = new AbsServerConfig(config.leaderboard(), config.display(), config.placements(), config.network(),
                 config.statistics(), config.snapshot(), config.waypoints(), config.performanceProfiler(),
-                new AbsServerConfig.PiglinOptimization(enabled, entityLimit));
+                new AbsServerConfig.PiglinOptimization(enabled, entityLimit), config.socialLeaderboards());
         Path path = Path.of("config", "absservertool.json");
         Files.createDirectories(path.getParent());
         Path temporary = Files.createTempFile(path.getParent(), "absservertool-", ".tmp");
@@ -75,6 +79,14 @@ public final class ConfigManager {
                 network, statistics, snapshot, waypoints, profiler,
                 value.piglinOptimization() == null ? defaults.piglinOptimization() :
                         new AbsServerConfig.PiglinOptimization(value.piglinOptimization().enabled(),
-                                Math.max(1, Math.min(10000, value.piglinOptimization().entityLimit()))));
+                                Math.max(1, Math.min(10000, value.piglinOptimization().entityLimit()))),
+                value.socialLeaderboards() == null ? defaults.socialLeaderboards() : value.socialLeaderboards().validated());
+    }
+    private static void merge(com.google.gson.JsonObject target, com.google.gson.JsonObject source) {
+        source.entrySet().forEach(entry -> {
+            if(entry.getValue().isJsonObject() && target.has(entry.getKey()) && target.get(entry.getKey()).isJsonObject())
+                merge(target.getAsJsonObject(entry.getKey()),entry.getValue().getAsJsonObject());
+            else if(!entry.getValue().isJsonNull()) target.add(entry.getKey(),entry.getValue());
+        });
     }
 }

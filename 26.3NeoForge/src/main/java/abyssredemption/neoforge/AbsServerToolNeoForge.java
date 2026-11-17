@@ -24,6 +24,22 @@ public final class AbsServerToolNeoForge {
         AbsServerTool.initialize();
         QQConfigStore.load();
         modEventBus.addListener(AbsServerNetworkingNeoForge::register);
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStartedEvent event) -> {
+            var mods = net.neoforged.fml.ModList.get();
+            var path = mods.getModFileById(AbsServerTool.MOD_ID).getFile().getFilePath();
+            var mod = mods.getModContainerById(AbsServerTool.MOD_ID).orElseThrow();
+            abyssredemption.update.ServerUpdater.start(event.getServer().getServerDirectory(), path,
+                    mod.getModInfo().getVersion().toString(), net.minecraft.SharedConstants.getCurrentVersion().name(), "neoforge");
+        });
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStoppedEvent event) -> abyssredemption.update.ServerUpdater.stop());
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerStartedEvent event) -> { SnapshotScheduler.start(); abyssredemption.social.SocialRuntime.start(event.getServer()); });
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) -> {
+            if(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) abyssredemption.social.SocialRuntime.join(player);
+        });
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent event) -> {
+            if(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) abyssredemption.social.SocialRuntime.leave(player,"LOGOUT");
+        });
+        NeoForge.EVENT_BUS.addListener((ServerStoppingEvent event) -> abyssredemption.social.SocialRuntime.stop(event.getServer()));
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> {
             AbsServerCommands.register(event.getDispatcher());
             QQCommands.register(event.getDispatcher());

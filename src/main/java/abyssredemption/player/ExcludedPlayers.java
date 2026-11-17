@@ -74,6 +74,16 @@ public final class ExcludedPlayers {
 
     public synchronized long revision() { return revision; }
 
+    public record Snapshot(Set<UUID> uuids, Set<String> names) {
+        public boolean contains(UUID uuid,String name) { return uuids.contains(uuid) || names.contains(name.toLowerCase(java.util.Locale.ROOT)); }
+    }
+    public synchronized Snapshot snapshot(MinecraftServer server) {
+        observe(server);
+        var ids=new HashSet<>(uuids);
+        for(var player:server.getPlayerList().getPlayers()) if(CarpetFakePlayerDetector.isFake(player)) ids.add(player.getUUID());
+        return new Snapshot(Set.copyOf(ids),Set.copyOf(names));
+    }
+
     public synchronized void edit(String identity, boolean exclude) throws java.io.IOException {
         load();
         Set<UUID> oldUuids = new HashSet<>(uuids);

@@ -8,11 +8,12 @@ import net.minecraft.server.MinecraftServer;
 public final class SnapshotScheduler {
     private static LocalDate lastObservedDate;
     private SnapshotScheduler() {}
+    public static void start() { lastObservedDate = null; }
     public static void tick(MinecraftServer server) {
         if (server.getTickCount() % 20 == 0) abyssredemption.player.ExcludedPlayers.get().observe(server);
         ZoneId zone = "SYSTEM".equalsIgnoreCase(ConfigManager.get().snapshot().timezone()) ? ZoneId.systemDefault() : ZoneId.of(ConfigManager.get().snapshot().timezone());
         LocalDate today = LocalDate.now(zone);
-        if (lastObservedDate == null) { lastObservedDate = today; SnapshotStore.markStartup(server); SnapshotStore.getOrCreateTodayBaseline(server); return; }
-        if (!today.equals(lastObservedDate)) { SnapshotStore.captureDayBaseline(server, today, false); SnapshotStore.cleanupOldSnapshots(server, today); lastObservedDate = today; abyssredemption.AbsServerTool.LOGGER.info("Captured daily vanilla statistics baseline {}", today); }
+        if (lastObservedDate == null) { lastObservedDate = today; abyssredemption.social.SocialRuntime.newDay(server,today,true); SnapshotStore.markStartup(server); SnapshotStore.getOrCreateTodayBaseline(server); return; }
+        if (!today.equals(lastObservedDate)) { abyssredemption.social.SocialRuntime.newDay(server,today,!today.equals(lastObservedDate.plusDays(1))); SnapshotStore.captureDayBaseline(server, today, false); SnapshotStore.cleanupOldSnapshots(server, today); lastObservedDate = today; abyssredemption.AbsServerTool.LOGGER.info("Captured daily vanilla statistics baseline {}", today); }
     }
 }

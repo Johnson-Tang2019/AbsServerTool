@@ -1,6 +1,11 @@
 plugins { id 'net.neoforged.moddev' }
 
 sourceSets {
+    socialRegression {
+        java.srcDir rootProject.file('src/regression/java')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
     piglinRegression {
         java.srcDir rootProject.file('src/regression/java')
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
@@ -11,10 +16,18 @@ sourceSets {
 neoForge {
     version = rootProject.neo_version
     mods {
+        absservertool_social_regression { sourceSet sourceSets.socialRegression }
         absservertool { sourceSet sourceSets.main }
         absservertool_piglin_regression { sourceSet sourceSets.piglinRegression }
     }
     runs {
+        socialRegression {
+            server()
+            programArgument '--nogui'
+            sourceSet=sourceSets.socialRegression
+            gameDirectory=file('run/social-regression')
+            loadedMods=[mods.absservertool,mods.absservertool_social_regression]
+        }
         server { server(); programArgument '--nogui'; loadedMods = [mods.absservertool] }
         piglinRegression {
             server()
@@ -23,6 +36,19 @@ neoForge {
             gameDirectory = file('run/piglin-regression')
             loadedMods = [mods.absservertool, mods.absservertool_piglin_regression]
         }
+    }
+}
+
+tasks.register('prepareSocialRegression', Copy) {
+    from rootProject.file('26.3Fabric/src/piglinRegression/server')
+    into 'run/social-regression'
+    filter { line -> line.replace('server-port=25572','server-port=25575').replace('piglin-regression-world','social-regression-world') }
+}
+tasks.named('runSocialRegression') {
+    dependsOn 'prepareSocialRegression'
+    doLast {
+        def log=file('run/social-regression/logs/latest.log')
+        if(!log.exists() || !log.text.contains('SOCIAL_RUNTIME_REGRESSION_PASSED:')) throw new GradleException('NeoForge social runtime acceptance did not pass')
     }
 }
 

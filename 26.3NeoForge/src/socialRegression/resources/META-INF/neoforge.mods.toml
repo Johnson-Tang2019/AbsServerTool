@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+[[mods]]
+modId="absservertool_social_regression"
+version="1.0.0"
+displayName="AbsServerTool social runtime fixture"
+[[dependencies.absservertool_social_regression]]
+modId="absservertool"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="SERVER"

@@ -7,6 +7,11 @@ dependencies {
 }
 
 sourceSets {
+    socialRegression {
+        java.srcDir rootProject.file('src/regression/java')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
     profilerRegression {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
         runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
@@ -20,11 +25,17 @@ sourceSets {
 
 loom {
     mods {
+        absservertool_social_regression { sourceSet sourceSets.socialRegression }
         absservertool { sourceSet sourceSets.main }
         absservertool_profiler_regression { sourceSet sourceSets.profilerRegression }
         absservertool_piglin_regression { sourceSet sourceSets.piglinRegression }
     }
     runs {
+        socialRegression {
+            server()
+            source sourceSets.socialRegression
+            runDir 'run/social-regression'
+        }
         server { server(); runDir 'run' }
         profilerRegression {
             server()
@@ -36,6 +47,19 @@ loom {
             source sourceSets.piglinRegression
             runDir 'run/piglin-regression'
         }
+    }
+}
+
+tasks.register('prepareSocialRegression', Copy) {
+    from 'src/piglinRegression/server'
+    into 'run/social-regression'
+    filter { line -> line.replace('server-port=25572','server-port=25574').replace('piglin-regression-world','social-regression-world') }
+}
+tasks.named('runSocialRegression') {
+    dependsOn 'prepareSocialRegression'
+    doLast {
+        def log=file('run/social-regression/logs/latest.log')
+        if(!log.exists() || !log.text.contains('SOCIAL_RUNTIME_REGRESSION_PASSED:')) throw new GradleException('Social runtime acceptance did not pass')
     }
 }
 

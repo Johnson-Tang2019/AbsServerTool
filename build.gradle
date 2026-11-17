@@ -57,4 +57,22 @@ subprojects {
         javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
     }
     tasks.named('check') { dependsOn verifyExclusions }
+    def verifySocial = tasks.register('verifySocialLeaderboards', JavaExec) {
+        group = 'verification'
+        dependsOn tasks.named('categoryVerificationClasses')
+        classpath = sourceSets.categoryVerification.runtimeClasspath
+        mainClass = 'abyssredemption.social.SocialVerification'
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+        workingDir = layout.buildDirectory.dir('social-verification').get().asFile
+        doFirst { workingDir.mkdirs() }
+    }
+    tasks.named('check') { dependsOn verifySocial }
+    def verifyUpdates = tasks.register('verifyUpdates', JavaExec) {
+        group = 'verification'
+        dependsOn tasks.named('categoryVerificationClasses')
+        classpath = sourceSets.categoryVerification.runtimeClasspath
+        mainClass = 'abyssredemption.update.UpdateVerification'
+        javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+    }
+    tasks.named('check') { dependsOn verifyUpdates }
 }

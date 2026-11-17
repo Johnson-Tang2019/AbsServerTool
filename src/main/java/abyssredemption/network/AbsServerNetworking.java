@@ -30,6 +30,12 @@ public final class AbsServerNetworking {
 
     public static void initialize() {
         if (!ConfigManager.get().network().enabled()) return;
+        PayloadTypeRegistry.serverboundPlay().register(abyssredemption.social.network.SocialPayloads.Request.TYPE, abyssredemption.social.network.SocialPayloads.Request.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(abyssredemption.social.network.SocialPayloads.Response.TYPE, abyssredemption.social.network.SocialPayloads.Response.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(abyssredemption.social.network.SocialPayloads.Request.TYPE, (p,c) -> c.server().execute(() -> {
+            if(ServerPlayNetworking.canSend(c.player(),abyssredemption.social.network.SocialPayloads.Response.TYPE))
+                abyssredemption.social.network.SocialNetworking.request(c.player(),c.server(),p,response -> sendPerformance(c.player(),response));
+        }));
         PayloadTypeRegistry.serverboundPlay().register(HelloRequestPayload.TYPE, HelloRequestPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(LeaderboardRequestPayload.TYPE, LeaderboardRequestPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(OverviewRequestPayload.TYPE, OverviewRequestPayload.CODEC);
@@ -78,8 +84,9 @@ public final class AbsServerNetworking {
         var config = ConfigManager.get();
         var today = SnapshotStore.getOrCreateTodayBaseline(context.server());
         int capabilities = ProtocolConstants.ALL_CAPABILITIES | (config.waypoints().enabled() ? ProtocolConstants.CAP_SHARED_WAYPOINTS : 0)
-                | (config.performanceProfiler().enabled() ? ProtocolConstants.CAP_PERFORMANCE_PROFILER : 0);
-        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.3.6", capabilities,
+                | (config.performanceProfiler().enabled() ? ProtocolConstants.CAP_PERFORMANCE_PROFILER : 0)
+                | (abyssredemption.social.SocialRuntime.available(context.server()) && ServerPlayNetworking.canSend(context.player(),abyssredemption.social.network.SocialPayloads.Response.TYPE) ? ProtocolConstants.CAP_SOCIAL_LEADERBOARDS : 0);
+        context.responseSender().sendPacket(new HelloResponsePayload(ProtocolConstants.PROTOCOL_VERSION, "0.4.0-beta.1", capabilities,
                 config.leaderboard().pageSize(), today.dateKey(), config.snapshot().timezone(), today.partial()));
         ProtocolJoinLogger.onSuccessfulHello(context.player());
         SharedWaypointNetworkingFabric.sendInitial(context.player());

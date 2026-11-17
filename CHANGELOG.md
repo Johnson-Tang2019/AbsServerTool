@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0-beta.1 - Minecraft 26.3
+
+- Add optional server update checks and staged installation for compatible Fabric and NeoForge releases, including Beta builds.
+- Verify the release digest before staging and back up the previous JAR before replacing it after shutdown.
+- Preview the pigeon and street wanderer leaderboards and their optional client protocol. Full client interoperability testing is still pending.
+
 ## 0.3.9 - Minecraft 26.3
 
 - Remember Carpet fake players when they leave, including bots removed between polling ticks, on both loaders without a Carpet dependency.

@@ -20,6 +20,18 @@ public final class AbsServerToolFabric implements ModInitializer {
         AbsServerTool.initialize();
         QQConfigStore.load();
         AbsServerNetworking.initialize();
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            var mod = net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(AbsServerTool.MOD_ID).orElseThrow();
+            var origin = mod.getOrigin();
+            if (origin.getKind() == net.fabricmc.loader.api.metadata.ModOrigin.Kind.PATH && origin.getPaths().size() == 1)
+                abyssredemption.update.ServerUpdater.start(server.getServerDirectory(), origin.getPaths().getFirst(),
+                        mod.getMetadata().getVersion().getFriendlyString(), net.minecraft.SharedConstants.getCurrentVersion().name(), "fabric");
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> abyssredemption.update.ServerUpdater.stop());
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> { SnapshotScheduler.start(); abyssredemption.social.SocialRuntime.start(server); });
+        net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.JOIN.register(abyssredemption.social.SocialRuntime::join);
+        net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.LEAVE.register(player -> abyssredemption.social.SocialRuntime.leave(player,"LOGOUT"));
+        ServerLifecycleEvents.SERVER_STOPPING.register(abyssredemption.social.SocialRuntime::stop);
         ServerTickEvents.START_SERVER_TICK.register(PerformanceProfiler::onServerTickStart);
         ServerTickEvents.END_SERVER_TICK.register(PerformanceProfiler::onServerTickEnd);
         ServerTickEvents.START_LEVEL_TICK.register(PerformanceProfiler::onLevelTickStart);

@@ -12,6 +12,7 @@ public final class ProtocolConstants {
     public static final int CAP_ADVANCEMENTS = 1 << 7;
     public static final int CAP_SHARED_WAYPOINTS = 1 << 8;
     public static final int CAP_PERFORMANCE_PROFILER = 1 << 9;
+    public static final int CAP_SOCIAL_LEADERBOARDS = 1 << 10;
     public static final int ALL_CAPABILITIES = CAP_OVERVIEW | CAP_ACTIVITY | CAP_PLAYTIME | CAP_DEATHS | CAP_PLACEMENTS | CAP_DAILY_TREND | CAP_WEEKLY_TREND | CAP_ADVANCEMENTS;
     private ProtocolConstants() {}
 }
